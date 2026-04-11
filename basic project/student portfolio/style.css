@@ -1,0 +1,296 @@
+/* =========================================
+   Basic Reset
+   Removes default browser spacing 
+   so our design looks the same everywhere
+========================================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+/* Enables smooth scrolling when clicking navigation links */
+html {
+    scroll-behavior: smooth;
+}
+
+/* General Body Styling */
+body {
+    background-color: #f9f9f9; /* Light background */
+    color: #333;             /* Dark gray text */
+    line-height: 1.6;
+}
+
+/* =========================================
+   Header and Navigation Bar
+========================================= */
+.header {
+    background-color: #ffffff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Small shadow for depth */
+    position: fixed; /* Keep it at the top when scrolling */
+    top: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between; /* Space logo and links apart */
+    align-items: center;
+    padding: 20px 50px;
+    z-index: 100; /* Ensure it stays above other content */
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #007bff; /* Blue color */
+}
+
+.nav-list {
+    list-style: none; /* Remove bullet points */
+    display: flex;
+    gap: 20px; /* Space between links */
+}
+
+.nav-list li a {
+    text-decoration: none; /* Remove underline */
+    color: #333;
+    font-size: 16px;
+    transition: color 0.3s; /* Smooth color change on hover */
+}
+
+.nav-list li a:hover {
+    color: #007bff; /* Change color when hovered */
+}
+
+/* =========================================
+   General Section Styling
+========================================= */
+section {
+    padding: 100px 20px 50px 20px; /* Top padding creates space for fixed header */
+    margin: 0 auto;
+    max-width: 900px; /* Limit the maximum width of content */
+    text-align: center; /* Center align section content by default */
+}
+
+section h2 {
+    font-size: 32px;
+    margin-bottom: 20px;
+    color: #222;
+}
+
+/* =========================================
+   Home Section
+========================================= */
+.home {
+    height: 100vh; /* Make section fill the screen height */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.home-content h1 {
+    font-size: 48px;
+    margin-bottom: 10px;
+}
+
+.home-content .highlight {
+    color: #007bff; /* Blue accent color */
+}
+
+.home-content h2 {
+    font-size: 24px;
+    color: #555;
+    margin-bottom: 20px;
+}
+
+.home-content p {
+    font-size: 18px;
+    margin-bottom: 30px;
+    max-width: 600px;
+}
+
+/* Standard Button */
+.btn {
+    display: inline-block;
+    padding: 12px 24px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border: none;
+    border-radius: 5px; /* Rounded corners */
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s; /* Smooth animations */
+}
+
+.btn:hover {
+    background-color: #0056b3; /* Darker blue */
+    transform: translateY(-2px); /* Moves up slightly */
+}
+
+/* =========================================
+   About Section
+========================================= */
+.about p {
+    font-size: 18px;
+    margin-bottom: 15px;
+    text-align: left; /* Left align paragraphs */
+}
+
+/* =========================================
+   Skills Section
+========================================= */
+.skills-grid {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap; /* Allows wrapping on smaller screens */
+    gap: 20px;
+}
+
+.skill-card {
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    width: 200px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05); /* Soft shadow */
+    transition: transform 0.3s;
+}
+
+.skill-card:hover {
+    transform: translateY(-5px); /* Hop effect */
+}
+
+.skill-card h3 {
+    color: #007bff;
+    margin-bottom: 10px;
+}
+
+/* =========================================
+   Projects Section
+========================================= */
+.projects-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.project-card {
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 25px;
+    text-align: left;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.project-card h3 {
+    margin-bottom: 10px;
+}
+
+.project-card p {
+    margin-bottom: 15px;
+    color: #666;
+}
+
+/* Smaller button for project cards */
+.btn-small {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: #333;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.btn-small:hover {
+    background-color: #555;
+}
+
+/* =========================================
+   Contact Section
+========================================= */
+.contact-container {
+    background-color: #ffffff;
+    padding: 30px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    max-width: 600px;
+    margin: 0 auto; /* Center the form */
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: #007bff;
+    outline: none; /* Remove default blue outline */
+}
+
+/* Error message styling (hidden by default via JS, added basic style here) */
+.error-message {
+    color: red;
+    font-size: 12px;
+    display: none; /* Hidden by default */
+    margin-top: 5px;
+}
+
+/* Success message styling */
+.success-message {
+    color: green;
+    font-weight: bold;
+    margin-top: 15px;
+    display: none; /* Hidden by default */
+}
+
+/* =========================================
+   Footer
+========================================= */
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 20px;
+    margin-top: 50px;
+}
+
+/* =========================================
+   Responsive Design (Mobile Support)
+========================================= */
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        padding: 15px;
+    }
+    
+    .nav-list {
+        margin-top: 15px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .home-content h1 {
+        font-size: 36px;
+    }
+}
