@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Boardly</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family:'Poppins',sans-serif;
+  background:#0f172a;
+  color:white;
+  overflow:hidden;
+  cursor:none;
+}
+
+/* CUSTOM CURSOR */
+.cursor{
+  width:14px;
+  height:14px;
+  background:#22c55e;
+  border-radius:50%;
+  position:fixed;
+  pointer-events:none;
+  box-shadow:0 0 10px #22c55e;
+}
+
+/* BOARD */
+.board{
+  width:100vw;
+  height:100vh;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+  background-size:40px 40px;
+  position:relative;
+}
+
+/* TOOLBAR */
+.toolbar{
+  position:fixed;
+  top:20px;
+  left:50%;
+  transform:translateX(-50%);
+  background:rgba(255,255,255,0.1);
+  backdrop-filter:blur(10px);
+  padding:10px;
+  border-radius:12px;
+}
+
+/* NOTE */
+.note{
+  position:absolute;
+  width:160px;
+  min-height:120px;
+  padding:10px;
+  border-radius:12px;
+  cursor:grab;
+  color:black;
+  box-shadow:0 10px 20px rgba(0,0,0,0.4);
+}
+
+/* COLORS */
+.yellow{background:#fde68a;}
+.blue{background:#bfdbfe;}
+.pink{background:#fbcfe8;}
+.green{background:#bbf7d0;}
+
+/* DELETE */
+.delete{
+  position:absolute;
+  top:5px;
+  right:8px;
+  cursor:pointer;
+  font-size:14px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="cursor" id="cursor"></div>
+
+<div class="toolbar">
+  Double click anywhere to create note ✨
+</div>
+
+<div class="board" id="board"></div>
+
+<script>
+
+let notes = JSON.parse(localStorage.getItem("board")) || [];
+
+/* CURSOR */
+document.addEventListener("mousemove", e=>{
+  cursor.style.left = e.clientX + "px";
+  cursor.style.top = e.clientY + "px";
+});
+
+/* RANDOM COLOR */
+function randomColor(){
+  let colors=["yellow","blue","pink","green"];
+  return colors[Math.floor(Math.random()*colors.length)];
+}
+
+/* CREATE NOTE */
+board.addEventListener("dblclick", e=>{
+
+  let note={
+    x:e.clientX,
+    y:e.clientY,
+    text:"",
+    color:randomColor()
+  };
+
+  notes.push(note);
+  save();
+});
+
+/* SAVE */
+function save(){
+  localStorage.setItem("board", JSON.stringify(notes));
+  render();
+}
+
+/* DELETE */
+function removeNote(i){
+  notes.splice(i,1);
+  save();
+}
+
+/* DRAG */
+let current=null;
+
+function dragStart(e,i){
+  current=i;
+}
+
+document.addEventListener("mousemove", e=>{
+  if(current!==null){
+    notes[current].x=e.clientX;
+    notes[current].y=e.clientY;
+    render();
+  }
+});
+
+document.addEventListener("mouseup", ()=>{
+  current=null;
+  save();
+});
+
+/* RENDER */
+function render(){
+
+  board.innerHTML="";
+
+  notes.forEach((n,i)=>{
+
+    board.innerHTML+=`
+      <div class="note ${n.color}" 
+        style="left:${n.x}px; top:${n.y}px;"
+        onmousedown="dragStart(event,${i})">
+
+        <div class="delete" onclick="removeNote(${i})">✖</div>
+
+        <textarea 
+          style="width:100%;height:80px;border:none;background:transparent;"
+          oninput="notes[${i}].text=this.value; save()"
+        >${n.text}</textarea>
+
+      </div>
+    `;
+  });
+}
+
+/* INIT */
+render();
+
+</script>
+
+</body>
+</html>

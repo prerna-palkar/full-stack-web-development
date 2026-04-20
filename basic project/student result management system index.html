@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Student Portfolio + Result System</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family:Segoe UI;
+  background:#0b1220;
+  color:white;
+}
+
+.header{
+  text-align:center;
+  padding:15px;
+  background:#111827;
+  font-size:20px;
+  font-weight:bold;
+}
+
+/* LAYOUT */
+.container{
+  display:flex;
+  height:calc(100vh - 55px);
+}
+
+/* LEFT */
+.left{
+  width:280px;
+  background:#0f172a;
+  border-right:1px solid #1f2937;
+  padding:10px;
+}
+
+.search{
+  width:100%;
+  padding:10px;
+  border-radius:8px;
+  border:none;
+  margin-bottom:10px;
+}
+
+.card-mini{
+  background:#111827;
+  padding:10px;
+  border-radius:10px;
+  margin-bottom:8px;
+  cursor:pointer;
+}
+
+.card-mini:hover{
+  background:#1f2937;
+}
+
+/* RIGHT */
+.right{
+  flex:1;
+  padding:20px;
+  overflow:auto;
+}
+
+.profile{
+  background:#111827;
+  padding:20px;
+  border-radius:12px;
+}
+
+.name{
+  font-size:26px;
+  font-weight:bold;
+}
+
+.sub{
+  opacity:0.7;
+}
+
+/* GRID */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:10px;
+  margin-top:15px;
+}
+
+.box{
+  background:#0f172a;
+  padding:12px;
+  border-radius:10px;
+}
+
+/* BADGES */
+.badge{
+  padding:4px 10px;
+  border-radius:20px;
+  font-size:12px;
+}
+
+.good{background:#16a34a;}
+.avg{background:#f59e0b;}
+.low{background:#dc2626;}
+</style>
+</head>
+
+<body>
+
+<div class="header">🎓 Student Portfolio + Result System</div>
+
+<div class="container">
+
+<!-- LEFT -->
+<div class="left">
+
+<input class="search" id="search" placeholder="Search student..." oninput="renderList()">
+
+<div id="list"></div>
+
+</div>
+
+<!-- RIGHT -->
+<div class="right">
+
+<div id="profile"></div>
+
+</div>
+
+</div>
+
+<script>
+
+/* STUDENTS WITH RESULTS */
+let students = [
+  {
+    name:"Rahul Sharma",
+    roll:"CS101",
+    branch:"Computer Science",
+    year:"2nd Year",
+    attendance:86,
+    marks:{math:78, science:82, english:74}
+  },
+  {
+    name:"Priya Mehta",
+    roll:"IT202",
+    branch:"IT",
+    year:"3rd Year",
+    attendance:92,
+    marks:{math:88, science:91, english:85}
+  },
+  {
+    name:"Aman Patel",
+    roll:"CS303",
+    branch:"Computer Science",
+    year:"1st Year",
+    attendance:74,
+    marks:{math:55, science:60, english:58}
+  }
+];
+
+let selected = 0;
+
+/* CALCULATE RESULT */
+function calculateResult(m){
+
+  let total = m.math + m.science + m.english;
+  let percent = total / 3;
+
+  let grade = "";
+
+  if(percent >= 85) grade = "A";
+  else if(percent >= 70) grade = "B";
+  else if(percent >= 50) grade = "C";
+  else grade = "F";
+
+  return {percent:percent.toFixed(2), grade};
+}
+
+/* LIST */
+function renderList(){
+
+  let box = document.getElementById("list");
+  let search = document.getElementById("search").value.toLowerCase();
+
+  box.innerHTML = "";
+
+  students.forEach((s,i)=>{
+
+    if(!s.name.toLowerCase().includes(search) &&
+       !s.roll.toLowerCase().includes(search)){
+      return;
+    }
+
+    box.innerHTML += `
+      <div class="card-mini" onclick="openProfile(${i})">
+        <b>${s.name}</b><br>
+        <small>${s.roll}</small>
+      </div>
+    `;
+  });
+}
+
+/* OPEN */
+function openProfile(i){
+  selected = i;
+  renderProfile();
+}
+
+/* PROFILE */
+function renderProfile(){
+
+  let s = students[selected];
+  let result = calculateResult(s.marks);
+
+  let status = result.grade === "A" ? "good"
+              : result.grade === "B" ? "avg"
+              : "low";
+
+  document.getElementById("profile").innerHTML = `
+    <div class="profile">
+
+      <div class="name">${s.name}</div>
+      <div class="sub">${s.branch} • ${s.year}</div>
+      <div class="sub">Roll: ${s.roll}</div>
+
+      <br>
+
+      <div>
+        Attendance:
+        <span class="badge ${s.attendance>=85?"good":s.attendance>=70?"avg":"low"}">
+          ${s.attendance}%
+        </span>
+      </div>
+
+      <div class="grid">
+
+        <div class="box">
+          <b>Result</b>
+          <p>Percentage: ${result.percent}%</p>
+          <p>Grade: <b>${result.grade}</b></p>
+        </div>
+
+        <div class="box">
+          <b>Marks</b>
+          <p>Math: ${s.marks.math}</p>
+          <p>Science: ${s.marks.science}</p>
+          <p>English: ${s.marks.english}</p>
+        </div>
+
+        <div class="box">
+          <b>Status</b>
+          <p>${result.grade==="A"?"Excellent 🌟":
+               result.grade==="B"?"Good 👍":
+               result.grade==="C"?"Average ⚠":"Fail ❌"}</p>
+        </div>
+
+        <div class="box">
+          <b>Parent Summary</b>
+          <p>${s.name} has achieved grade <b>${result.grade}</b> with ${result.percent}% performance.</p>
+        </div>
+
+      </div>
+
+    </div>
+  `;
+}
+
+/* INIT */
+renderList();
+renderProfile();
+
+</script>
+
+</body>
+</html>

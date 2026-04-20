@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Elegant Chat App</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:linear-gradient(135deg,#1f1c2c,#928dab);
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+/* CHAT BOX */
+.chat-container{
+  width:380px;
+  height:600px;
+  background:rgba(255,255,255,0.12);
+  backdrop-filter:blur(15px);
+  border-radius:20px;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  box-shadow:0 10px 30px rgba(0,0,0,0.4);
+}
+
+/* HEADER */
+.header{
+  padding:15px;
+  text-align:center;
+  font-weight:bold;
+  color:white;
+  background:rgba(0,0,0,0.25);
+}
+
+/* CHAT AREA */
+.chat-box{
+  flex:1;
+  padding:10px;
+  overflow-y:auto;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+/* MESSAGE */
+.msg{
+  max-width:75%;
+  padding:10px;
+  border-radius:15px;
+  font-size:14px;
+  word-wrap:break-word;
+  animation:fade 0.2s ease;
+}
+
+@keyframes fade{
+  from{opacity:0; transform:translateY(10px);}
+  to{opacity:1; transform:translateY(0);}
+}
+
+/* USER */
+.user{
+  align-self:flex-end;
+  background:#6a5cff;
+  color:white;
+  border-bottom-right-radius:0;
+}
+
+/* BOT */
+.bot{
+  align-self:flex-start;
+  background:rgba(255,255,255,0.25);
+  color:white;
+  border-bottom-left-radius:0;
+}
+
+/* INPUT AREA */
+.input-box{
+  display:flex;
+  padding:10px;
+  background:rgba(0,0,0,0.25);
+}
+
+input{
+  flex:1;
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  outline:none;
+}
+
+button{
+  margin-left:10px;
+  padding:10px 15px;
+  border:none;
+  border-radius:10px;
+  background:#6a5cff;
+  color:white;
+  cursor:pointer;
+}
+
+button:hover{
+  transform:scale(1.05);
+}
+
+/* CLEAR */
+.clear{
+  text-align:center;
+  padding:6px;
+  font-size:12px;
+  color:white;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="chat-container">
+
+  <div class="header">💬 Elegant Chat App</div>
+
+  <div class="chat-box" id="chatBox"></div>
+
+  <div class="input-box">
+    <input id="input" placeholder="Type message...">
+    <button onclick="sendMsg()">➤</button>
+  </div>
+
+  <div class="clear" onclick="clearChat()">Clear Chat</div>
+
+</div>
+
+<script>
+let chatBox = document.getElementById("chatBox");
+let input = document.getElementById("input");
+
+let chat = JSON.parse(localStorage.getItem("chatData")) || [];
+
+/* INIT LOAD */
+function loadChat(){
+  chatBox.innerHTML = "";
+
+  chat.forEach(m=>{
+    let div = document.createElement("div");
+    div.className = "msg " + m.type;
+    div.textContent = m.text;
+    chatBox.appendChild(div);
+  });
+
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+/* BOT RESPONSE */
+function botReply(text){
+  let reply = "🤔 I didn't understand that";
+
+  if(text.includes("hi")) reply = "Hello 👋 How can I help you?";
+  if(text.includes("hello")) reply = "Hi there! 😊";
+  if(text.includes("help")) reply = "I'm here to assist you!";
+  if(text.includes("price")) reply = "Prices depend on service 💰";
+
+  setTimeout(()=>{
+    chat.push({text:reply,type:"bot"});
+    save();
+    loadChat();
+  },600);
+}
+
+/* SEND MESSAGE */
+function sendMsg(){
+  let text = input.value.trim();
+  if(text === "") return;
+
+  chat.push({text:text,type:"user"});
+  save();
+  loadChat();
+
+  botReply(text.toLowerCase());
+  input.value = "";
+}
+
+/* SAVE */
+function save(){
+  localStorage.setItem("chatData", JSON.stringify(chat));
+}
+
+/* CLEAR */
+function clearChat(){
+  chat = [];
+  save();
+  loadChat();
+}
+
+/* ENTER KEY SUPPORT */
+input.addEventListener("keypress", function(e){
+  if(e.key === "Enter"){
+    sendMsg();
+  }
+});
+
+/* FIRST LOAD */
+loadChat();
+</script>
+
+</body>
+</html>

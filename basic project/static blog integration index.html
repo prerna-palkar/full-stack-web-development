@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>InkFlow Blog</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family:Segoe UI;
+  background:#0f172a;
+  color:white;
+}
+
+/* HEADER */
+.header{
+  text-align:center;
+  padding:15px;
+  background:#111827;
+  font-size:22px;
+  font-weight:bold;
+}
+
+/* LAYOUT */
+.container{
+  display:flex;
+  gap:15px;
+  padding:15px;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+
+/* FORM */
+.form{
+  width:300px;
+  background:#1e293b;
+  padding:15px;
+  border-radius:12px;
+}
+
+input, textarea, select{
+  width:100%;
+  padding:10px;
+  margin:6px 0;
+  border-radius:8px;
+  border:none;
+  outline:none;
+}
+
+textarea{
+  height:100px;
+  resize:none;
+}
+
+button{
+  width:100%;
+  padding:10px;
+  border:none;
+  border-radius:8px;
+  background:#22c55e;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+/* BLOG AREA */
+.blogs{
+  width:650px;
+}
+
+/* CARD */
+.card{
+  background:#1e293b;
+  padding:15px;
+  border-radius:12px;
+  margin-bottom:10px;
+}
+
+/* TITLE */
+.title{
+  font-size:18px;
+  font-weight:bold;
+}
+
+/* CATEGORY */
+.cat{
+  font-size:12px;
+  color:#38bdf8;
+}
+
+/* ACTIONS */
+.actions{
+  display:flex;
+  justify-content:space-between;
+  margin-top:10px;
+}
+
+.btn{
+  cursor:pointer;
+  font-size:14px;
+}
+
+/* SEARCH */
+.search{
+  width:100%;
+  padding:10px;
+  margin-bottom:10px;
+  border-radius:8px;
+  border:none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">✍️ InkFlow Blog Platform</div>
+
+<div class="container">
+
+<!-- FORM -->
+<div class="form">
+  <h3>Create Post</h3>
+
+  <input id="title" placeholder="Blog Title">
+
+  <select id="category">
+    <option>Technology</option>
+    <option>Business</option>
+    <option>Education</option>
+    <option>Life</option>
+  </select>
+
+  <textarea id="content" placeholder="Write your blog..."></textarea>
+
+  <button onclick="addPost()">Publish</button>
+</div>
+
+<!-- BLOGS -->
+<div class="blogs">
+
+  <input class="search" id="search" placeholder="Search blogs..." oninput="render()">
+
+  <div id="list"></div>
+
+</div>
+
+</div>
+
+<script>
+
+let posts = JSON.parse(localStorage.getItem("blogs")) || [];
+
+/* ADD POST */
+function addPost(){
+
+  let title = document.getElementById("title").value.trim();
+  let category = document.getElementById("category").value;
+  let content = document.getElementById("content").value.trim();
+
+  if(!title || !content){
+    alert("Fill all fields");
+    return;
+  }
+
+  posts.unshift({
+    title,
+    category,
+    content,
+    likes:0,
+    time:new Date().toLocaleString()
+  });
+
+  save();
+  render();
+
+  document.getElementById("title").value="";
+  document.getElementById("content").value="";
+}
+
+/* LIKE */
+function like(i){
+  posts[i].likes++;
+  save();
+  render();
+}
+
+/* DELETE */
+function removePost(i){
+  posts.splice(i,1);
+  save();
+  render();
+}
+
+/* SAVE */
+function save(){
+  localStorage.setItem("blogs", JSON.stringify(posts));
+}
+
+/* RENDER */
+function render(){
+
+  let list = document.getElementById("list");
+  let search = document.getElementById("search").value.toLowerCase();
+
+  list.innerHTML = "";
+
+  posts.forEach((p,i)=>{
+
+    if(!p.title.toLowerCase().includes(search) &&
+       !p.content.toLowerCase().includes(search)){
+      return;
+    }
+
+    list.innerHTML += `
+      <div class="card">
+        <div class="cat">${p.category}</div>
+        <div class="title">${p.title}</div>
+
+        <p>${p.content}</p>
+
+        <small>${p.time}</small>
+
+        <div class="actions">
+          <div class="btn" onclick="like(${i})">❤️ ${p.likes}</div>
+          <div class="btn" onclick="removePost(${i})">🗑 Delete</div>
+        </div>
+      </div>
+    `;
+  });
+}
+
+/* INIT */
+render();
+
+</script>
+
+</body>
+</html>
