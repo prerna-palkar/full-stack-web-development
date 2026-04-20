@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Event Countdown</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: #f7f8fa;
+}
+
+/* Header */
+header {
+    text-align: center;
+    padding: 20px;
+    font-size: 28px;
+    background: white;
+    border-bottom: 1px solid #eee;
+}
+
+/* Container */
+.container {
+    max-width: 600px;
+    margin: auto;
+    padding: 20px;
+}
+
+/* Card */
+.card {
+    background: white;
+    padding: 20px;
+    margin-bottom: 15px;
+    border-radius: 12px;
+    border: 1px solid #eee;
+    text-align: center;
+}
+
+/* Title */
+.title {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+/* Big Timer */
+.timer {
+    font-size: 28px;
+    margin: 10px 0;
+    font-weight: bold;
+}
+
+/* Status */
+.status {
+    font-size: 14px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    display: inline-block;
+}
+
+/* Colors */
+.upcoming {
+    background: #ffeaa7;
+}
+
+.soon {
+    background: #fab1a0;
+}
+
+.live {
+    background: #55efc4;
+}
+</style>
+</head>
+
+<body>
+
+<header>⏳ Event Countdown</header>
+
+<div class="container" id="events"></div>
+
+<script>
+
+let events = [
+    { name: "New Year", date: "2027-01-01T00:00:00" },
+    { name: "Diwali", date: "2026-11-08T00:00:00" },
+    { name: "Holi", date: "2026-03-04T00:00:00" }
+];
+
+// Notification
+if (Notification.permission !== "granted") {
+    Notification.requestPermission();
+}
+
+function notify(msg) {
+    if (Notification.permission === "granted") {
+        new Notification(msg);
+    }
+}
+
+function render() {
+    let container = document.getElementById("events");
+    container.innerHTML = "";
+
+    let now = new Date().getTime();
+
+    events.forEach(event => {
+        let diff = new Date(event.date) - now;
+
+        let d = Math.floor(diff / (1000*60*60*24));
+        let h = Math.floor((diff / (1000*60*60)) % 24);
+        let m = Math.floor((diff / (1000*60)) % 60);
+
+        let statusText = "";
+        let statusClass = "";
+
+        if (diff <= 0) {
+            statusText = "🎉 Live Now";
+            statusClass = "live";
+        } else if (d === 0 && h < 1) {
+            statusText = "🔥 Starting Soon";
+            statusClass = "soon";
+            notify(event.name + " is starting soon!");
+        } else {
+            statusText = "⏳ Coming Up";
+            statusClass = "upcoming";
+        }
+
+        let card = document.createElement("div");
+        card.className = "card";
+
+        card.innerHTML = `
+            <div class="title">${event.name}</div>
+            <div class="timer">${d}d ${h}h ${m}m</div>
+            <div class="status ${statusClass}">${statusText}</div>
+        `;
+
+        container.appendChild(card);
+    });
+}
+
+setInterval(render, 1000);
+render();
+
+</script>
+
+</body>
+</html>

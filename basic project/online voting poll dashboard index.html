@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Voting Dashboard</title>
+<style>
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        background: linear-gradient(135deg, #1e1e2f, #111);
+        color: white;
+        margin: 0;
+        padding: 0;
+    }
+
+    header {
+        text-align: center;
+        padding: 20px;
+        font-size: 28px;
+        font-weight: bold;
+        letter-spacing: 2px;
+    }
+
+    .container {
+        max-width: 700px;
+        margin: auto;
+        padding: 20px;
+    }
+
+    .poll {
+        background: rgba(255,255,255,0.05);
+        padding: 20px;
+        border-radius: 15px;
+        margin-bottom: 20px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+
+    .option {
+        margin: 10px 0;
+        cursor: pointer;
+    }
+
+    .progress {
+        height: 20px;
+        background: #333;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-top: 5px;
+    }
+
+    .progress-bar {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #00c6ff, #0072ff);
+        transition: width 0.5s;
+    }
+
+    button {
+        margin-top: 10px;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 10px;
+        background: #00c6ff;
+        color: white;
+        cursor: pointer;
+    }
+
+    input {
+        padding: 10px;
+        margin: 5px 0;
+        width: 100%;
+        border-radius: 10px;
+        border: none;
+    }
+
+    .add-poll {
+        background: rgba(255,255,255,0.08);
+        padding: 15px;
+        border-radius: 15px;
+    }
+</style>
+</head>
+
+<body>
+
+<header>🗳 Online Voting Dashboard</header>
+
+<div class="container">
+
+    <!-- Poll Section -->
+    <div id="pollContainer"></div>
+
+    <!-- Add Poll -->
+    <div class="add-poll">
+        <h3>Create New Poll</h3>
+        <input type="text" id="question" placeholder="Enter question">
+        <input type="text" id="option1" placeholder="Option 1">
+        <input type="text" id="option2" placeholder="Option 2">
+        <button onclick="createPoll()">Create Poll</button>
+    </div>
+
+</div>
+
+<script>
+let polls = JSON.parse(localStorage.getItem("polls")) || [
+    {
+        question: "Best Programming Language?",
+        options: [
+            { text: "JavaScript", votes: 0 },
+            { text: "Python", votes: 0 }
+        ]
+    }
+];
+
+function savePolls() {
+    localStorage.setItem("polls", JSON.stringify(polls));
+}
+
+function renderPolls() {
+    const container = document.getElementById("pollContainer");
+    container.innerHTML = "";
+
+    polls.forEach((poll, pollIndex) => {
+        let totalVotes = poll.options.reduce((sum, opt) => sum + opt.votes, 0);
+
+        let pollDiv = document.createElement("div");
+        pollDiv.className = "poll";
+
+        let html = `<h3>${poll.question}</h3>`;
+
+        poll.options.forEach((opt, index) => {
+            let percent = totalVotes ? (opt.votes / totalVotes) * 100 : 0;
+
+            html += `
+                <div class="option" onclick="vote(${pollIndex}, ${index})">
+                    ${opt.text} (${opt.votes} votes)
+                    <div class="progress">
+                        <div class="progress-bar" style="width:${percent}%"></div>
+                    </div>
+                </div>
+            `;
+        });
+
+        pollDiv.innerHTML = html;
+        container.appendChild(pollDiv);
+    });
+}
+
+function vote(pollIndex, optionIndex) {
+    polls[pollIndex].options[optionIndex].votes++;
+    savePolls();
+    renderPolls();
+}
+
+function createPoll() {
+    let q = document.getElementById("question").value;
+    let o1 = document.getElementById("option1").value;
+    let o2 = document.getElementById("option2").value;
+
+    if (!q || !o1 || !o2) {
+        alert("Fill all fields!");
+        return;
+    }
+
+    polls.push({
+        question: q,
+        options: [
+            { text: o1, votes: 0 },
+            { text: o2, votes: 0 }
+        ]
+    });
+
+    savePolls();
+    renderPolls();
+
+    document.getElementById("question").value = "";
+    document.getElementById("option1").value = "";
+    document.getElementById("option2").value = "";
+}
+
+renderPolls();
+</script>
+
+</body>
+</html>

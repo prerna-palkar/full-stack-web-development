@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Polling System</title>
+
+<style>
+body {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  background: linear-gradient(135deg, #3a0ca3, #4361ee);
+  color: #333;
+}
+
+.container {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+}
+
+h1 {
+  text-align: center;
+  color: white;
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  margin-top: 20px;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+}
+
+button {
+  padding: 10px;
+  border: none;
+  background: #4361ee;
+  color: white;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+button:hover {
+  background: #2a45c5;
+}
+
+.poll {
+  margin-top: 15px;
+}
+
+.option {
+  margin: 8px 0;
+}
+
+.bar {
+  height: 8px;
+  background: #ddd;
+  border-radius: 5px;
+  margin-top: 4px;
+}
+
+.fill {
+  height: 8px;
+  background: #4361ee;
+  border-radius: 5px;
+}
+
+.delete {
+  background: red;
+  margin-top: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Online Polling System</h1>
+
+<div class="card">
+  <h3>Create Poll</h3>
+  <input id="question" placeholder="Enter question">
+  <input id="opt1" placeholder="Option 1">
+  <input id="opt2" placeholder="Option 2">
+  <input id="opt3" placeholder="Option 3 (optional)">
+  <input id="opt4" placeholder="Option 4 (optional)">
+  <button onclick="createPoll()">Create Poll</button>
+</div>
+
+<div id="polls"></div>
+
+</div>
+
+<script>
+let polls = JSON.parse(localStorage.getItem("polls")) || [];
+
+function save(){
+  localStorage.setItem("polls", JSON.stringify(polls));
+}
+
+function createPoll(){
+  let q = question.value;
+  let o1 = opt1.value;
+  let o2 = opt2.value;
+  let o3 = opt3.value;
+  let o4 = opt4.value;
+
+  if(!q || !o1 || !o2){
+    alert("Fill required fields");
+    return;
+  }
+
+  let options = [o1, o2];
+  if(o3) options.push(o3);
+  if(o4) options.push(o4);
+
+  let poll = {
+    id: Date.now(),
+    question: q,
+    options: options.map(o => ({text:o, votes:0})),
+    voters: []
+  };
+
+  polls.push(poll);
+  save();
+  render();
+
+  question.value = opt1.value = opt2.value = opt3.value = opt4.value = "";
+}
+
+function vote(pollId, index){
+  let poll = polls.find(p => p.id === pollId);
+
+  if(poll.voters.includes("user")){
+    alert("You already voted");
+    return;
+  }
+
+  poll.options[index].votes++;
+  poll.voters.push("user");
+
+  save();
+  render();
+}
+
+function deletePoll(id){
+  polls = polls.filter(p => p.id !== id);
+  save();
+  render();
+}
+
+function render(){
+  let container = document.getElementById("polls");
+  container.innerHTML = "";
+
+  polls.forEach(p => {
+    let total = p.options.reduce((sum,o)=>sum+o.votes,0);
+
+    let html = `
+    <div class="card poll">
+      <h3>${p.question}</h3>
+    `;
+
+    p.options.forEach((o,i)=>{
+      let percent = total ? (o.votes/total)*100 : 0;
+
+      html += `
+      <div class="option">
+        <button onclick="vote(${p.id}, ${i})">${o.text}</button>
+        <div class="bar">
+          <div class="fill" style="width:${percent}%"></div>
+        </div>
+        <small>${o.votes} votes (${percent.toFixed(1)}%)</small>
+      </div>
+      `;
+    });
+
+    html += `<button class="delete" onclick="deletePoll(${p.id})">Delete Poll</button>`;
+    html += `</div>`;
+
+    container.innerHTML += html;
+  });
+}
+
+render();
+</script>
+
+</body>
+</html>

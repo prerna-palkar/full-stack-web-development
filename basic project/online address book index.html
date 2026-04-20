@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ContactVault Pro</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family:'Segoe UI',sans-serif;
+  background: linear-gradient(135deg,#f8fafc,#e2e8f0,#1e293b);
+  color:#111;
+}
+
+/* HEADER */
+.header{
+  text-align:center;
+  padding:20px;
+  font-size:26px;
+  font-weight:600;
+  letter-spacing:1px;
+}
+
+/* CONTAINER */
+.container{
+  max-width:900px;
+  margin:auto;
+  padding:20px;
+}
+
+/* CARD */
+.card{
+  background:rgba(255,255,255,0.75);
+  backdrop-filter:blur(12px);
+  border-radius:16px;
+  padding:15px;
+  margin-bottom:15px;
+  box-shadow:0 8px 25px rgba(0,0,0,0.15);
+  transition:0.3s;
+}
+
+.card:hover{
+  transform:translateY(-3px);
+}
+
+/* INPUT */
+input, textarea{
+  width:100%;
+  padding:10px;
+  margin:6px 0;
+  border-radius:8px;
+  border:1px solid #ccc;
+  font-size:14px;
+}
+
+/* BUTTON */
+button{
+  padding:10px;
+  border:none;
+  border-radius:8px;
+  background:#1e293b;
+  color:white;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+button:hover{
+  transform:scale(1.03);
+}
+
+/* CONTACT */
+.contact{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+/* AVATAR */
+.avatar{
+  width:45px;
+  height:45px;
+  border-radius:50%;
+  background:#4f46e5;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:white;
+  font-weight:bold;
+  font-size:16px;
+}
+
+/* IMAGE */
+.hero{
+  width:100%;
+  border-radius:12px;
+  margin-bottom:10px;
+  height:180px;
+  object-fit:cover;
+}
+
+/* TOAST (MOBILE STYLE) */
+.toast{
+  position:fixed;
+  top:20px;
+  right:20px;
+  background:white;
+  color:#111;
+  padding:12px 15px;
+  border-radius:12px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.2);
+  font-size:14px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  animation:slide 0.4s ease;
+}
+
+@keyframes slide{
+  from{opacity:0; transform:translateY(-20px);}
+  to{opacity:1;}
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">📒 ContactVault Pro</div>
+
+<div class="container">
+
+<!-- PROFESSIONAL IMAGE -->
+<div class="card">
+  <img class="hero" src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d">
+  <p style="text-align:center;">Manage your professional and personal contacts efficiently.</p>
+</div>
+
+<!-- ADD CONTACT -->
+<div class="card">
+  <h3>Add Contact</h3>
+
+  <input id="name" placeholder="Full Name">
+  <input id="phone" placeholder="Phone Number">
+  <input id="email" placeholder="Email">
+  <textarea id="note" placeholder="Notes"></textarea>
+
+  <button onclick="addContact()">Save Contact</button>
+</div>
+
+<!-- SEARCH -->
+<div class="card">
+  <input id="search" placeholder="Search contacts..." oninput="render()">
+</div>
+
+<!-- LIST -->
+<div id="list"></div>
+
+</div>
+
+<script>
+
+let contacts = JSON.parse(localStorage.getItem("contacts")) || [];
+
+/* TOAST */
+function showToast(msg){
+
+  let t=document.createElement("div");
+  t.className="toast";
+  t.innerHTML = `
+    <span>📲</span>
+    <div>${msg}</div>
+  `;
+
+  document.body.appendChild(t);
+
+  setTimeout(()=>t.remove(),2500);
+}
+
+/* ADD */
+function addContact(){
+
+  let name = nameInput();
+  let phone = phoneInput();
+  let email = emailInput();
+  let note = noteInput();
+
+  if(!name || !phone){
+    showToast("Please enter required details");
+    return;
+  }
+
+  contacts.unshift({name,phone,email,note});
+
+  localStorage.setItem("contacts", JSON.stringify(contacts));
+
+  showToast("Contact saved successfully");
+  render();
+}
+
+/* HELPERS */
+function nameInput(){ return document.getElementById("name").value.trim(); }
+function phoneInput(){ return document.getElementById("phone").value.trim(); }
+function emailInput(){ return document.getElementById("email").value.trim(); }
+function noteInput(){ return document.getElementById("note").value.trim(); }
+
+/* DELETE */
+function removeContact(i){
+  contacts.splice(i,1);
+  localStorage.setItem("contacts", JSON.stringify(contacts));
+  showToast("Contact removed");
+  render();
+}
+
+/* RENDER */
+function render(){
+
+  let box = document.getElementById("list");
+  let search = document.getElementById("search").value.toLowerCase();
+
+  box.innerHTML="";
+
+  contacts.forEach((c,i)=>{
+
+    if(!c.name.toLowerCase().includes(search)) return;
+
+    box.innerHTML += `
+      <div class="card contact">
+        <div style="display:flex; gap:12px;">
+          <div class="avatar">${c.name[0]}</div>
+          <div>
+            <b>${c.name}</b><br>
+            📞 ${c.phone}<br>
+            ✉ ${c.email || "Not added"}
+          </div>
+        </div>
+
+        <button onclick="removeContact(${i})">Delete</button>
+      </div>
+    `;
+  });
+}
+
+/* INIT */
+render();
+
+</script>
+
+</body>
+</html>

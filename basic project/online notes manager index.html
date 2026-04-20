@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prerna's Notes Manager - Organize Your Mind</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-light: #fafaf8;
+            --bg-card-light: #ffffff;
+            --text-primary-light: #2d2d2d;
+            --text-secondary-light: #666666;
+            --border-light: #e8e6e1;
+            --accent: #d4a574;
+            
+            --bg-dark: #1a1a1a;
+            --bg-card-dark: #2d2d2d;
+            --text-primary-dark: #f0f0f0;
+            --text-secondary-dark: #999999;
+            --border-dark: #404040;
+
+            --color-yellow: #ffd93d;
+            --color-blue: #6bcbff;
+            --color-pink: #ff9bd2;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-primary-light);
+            transition: all 0.3s ease;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        body.dark-mode {
+            background-color: var(--bg-dark);
+            color: var(--text-primary-dark);
+        }
+
+        /* Header */
+        header {
+            background-color: var(--bg-card-light);
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        body.dark-mode header {
+            background-color: var(--bg-card-dark);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .app-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--accent);
+            letter-spacing: 1px;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .dark-mode-toggle {
+            background: none;
+            border: none;
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            padding: 0.5rem;
+        }
+
+        .dark-mode-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .header-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary-light);
+            font-weight: 300;
+            margin-bottom: 0.5rem;
+        }
+
+        body.dark-mode .header-subtitle {
+            color: var(--text-secondary-dark);
+        }
+
+        .user-name {
+            font-size: 0.9rem;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* Controls Section */
+        .controls-section {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-bar {
+            flex: 1;
+            min-width: 200px;
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            background-color: var(--bg-card-light);
+            color: var(--text-primary-light);
+            transition: all 0.3s ease;
+        }
+
+        body.dark-mode .search-bar {
+            background-color: var(--bg-card-dark);
+            border-color: var(--border-dark);
+            color: var(--text-primary-dark);
+        }
+
+        .search-bar:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(212, 165, 116, 0.1);
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 0.8rem;
+            align-items: center;
+        }
+
+        .filter-select,
+        .add-note-btn {
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: var(--bg-card-light);
+            color: var(--text-primary-light);
+        }
+
+        body.dark-mode .filter-select,
+        body.dark-mode .add-note-btn {
+            background-color: var(--bg-card-dark);
+            border-color: var(--border-dark);
+            color: var(--text-primary-dark);
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .add-note-btn {
+            background: linear-gradient(135deg, var(--accent), #c9945e);
+            color: white;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .add-note-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(212, 165, 116, 0.3);
+        }
+
+        /* Notes Container */
+        .notes-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            animation: fadeIn 0.6s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Note Card */
+        .note-card {
+            background-color: var(--bg-card-light);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+            cursor: grab;
+            border-left: 4px solid var(--border-light);
+            position: relative;
+            overflow: hidden;
+            animation: slideUp 0.4s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        body.dark-mode .note-card {
+            background-color: var(--bg-card-dark);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .note-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        body.dark-mode .note-card:hover {
+            box-shadow: 0 12px 24px rgba(212, 165, 116, 0.15);
+        }
+
+        .note-card.color-yellow {
+            border-left-color: var(--color-yellow);
+        }
+
+        .note-card.color-blue {
+            border-left-color: var(--color-blue);
+        }
+
+        .note-card.color-pink {
+            border-left-color: var(--color-pink);
+        }
+
+        .note-card.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+        }
+
+        .note-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.8rem;
+        }
+
+        .note-mood {
+            font-size: 1.8rem;
+        }
+
+        .note-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .note-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 0.3rem;
+        }
+
+        .note-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .note-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+            color: var(--text-primary-light);
+            word-break: break-word;
+        }
+
+        body.dark-mode .note-title {
+            color: var(--text-primary-dark);
+        }
+
+        .note-content {
+            font-size: 0.95rem;
+            color: var(--text-secondary-light);
+            margin-bottom: 1rem;
+            line-height: 1.6;
+            max-height: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            -webkit-box-orient: vertical;
+        }
+
+        body.dark-mode .note-content {
+            color: var(--text-secondary-dark);
+        }
+
+        .note-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.8rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid var(--border-light);
+        }
+
+        body.dark-mode .note-footer {
+            border-top-color: var(--border-dark);
+        }
+
+        .note-category {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .note-category.yellow {
+            background-color: var(--color-yellow);
+            color: #333;
+        }
+
+        .note-category.blue {
+            background-color: var(--color-blue);
+            color: #333;
+        }
+
+        .note-category.pink {
+            background-color: var(--color-pink);
+            color: #333;
+        }
+
+        .note-date {
+            font-size: 0.75rem;
+            color: var(--text-secondary-light);
+        }
+
+        body.dark-mode .note-date {
+            color: var(--text-secondary-dark);
+        }
+
+        /* Empty State */
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary-light);
+        }
+
+        body.dark-mode .empty-title {
+            color: var(--text-secondary-dark);
+        }
+
+        .empty-text {
+            color: var(--text-secondary-light);
+            font-size: 0.95rem;
+        }
+
+        body.dark-mode .empty-text {
+            color: var(--text-secondary-dark);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: var(--bg-card-light);
+            border-radius: 12px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        body.dark-mode .modal-content {
+            background-color: var(--bg-card-dark);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary-light);
+        }
+
+        body.dark-mode .modal-title {
+            color: var(--text-primary-dark);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .modal-close:hover {
+            transform: rotate(90deg);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary-light);
+        }
+
+        body.dark-mode .form-label {
+            color: var(--text-primary-dark);
+        }
+
+        .form-input,
+        .form-textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            background-color: var(--bg-light);
+            color: var(--text-primary-light);
+            transition: all 0.3s ease;
+        }
+
+        body.dark-mode .form-input,
+        body.dark-mode .form-textarea {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-color: var(--border-dark);
+            color: var(--text-primary-dark);
+        }
+
+        .form-input:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(212, 165, 116, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 150px;
+        }
+
+        .mood-selector,
+        .color-selector {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .mood-option,
+        .color-option {
+            padding: 0.8rem 1rem;
+            border: 2px solid var(--border-light);
+            border-radius: 8px;
+            background-color: var(--bg-light);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.5rem;
+        }
+
+        body.dark-mode .mood-option,
+        body.dark-mode .color-option {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-color: var(--border-dark);
+        }
+
+        .mood-option:hover,
+        .color-option:hover {
+            transform: scale(1.1);
+        }
+
+        .mood-option.selected,
+        .color-option.selected {
+            border-color: var(--accent);
+            background-color: rgba(212, 165, 116, 0.2);
+        }
+
+        .color-option {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .color-option.yellow {
+            background-color: var(--color-yellow);
+        }
+
+        .color-option.blue {
+            background-color: var(--color-blue);
+        }
+
+        .color-option.pink {
+            background-color: var(--color-pink);
+        }
+
+        .form-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .form-btn {
+            flex: 1;
+            padding: 0.9rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, var(--accent), #c9945e);
+            color: white;
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(212, 165, 116, 0.3);
+        }
+
+        .btn-cancel {
+            background-color: var(--border-light);
+            color: var(--text-primary-light);
+        }
+
+        body.dark-mode .btn-cancel {
+            background-color: var(--border-dark);
+            color: var(--text-primary-dark);
+        }
+
+        .btn-cancel:hover {
+            opacity: 0.8;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header {
+                padding: 1.5rem;
+            }
+
+            .header-top {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .controls-section {
+                flex-direction: column;
+                margin: 1rem auto;
+                padding: 0 1rem;
+            }
+
+            .filter-group {
+                width: 100%;
+                flex-direction: column;
+            }
+
+            .filter-select,
+            .add-note-btn {
+                width: 100%;
+            }
+
+            .search-bar {
+                width: 100%;
+                min-width: unset;
+            }
+
+            .notes-container {
+                grid-template-columns: 1fr;
+                padding: 0 1rem 2rem;
+                margin: 1rem auto;
+            }
+
+            .modal-content {
+                width: 95%;
+            }
+
+            .app-title {
+                font-size: 1.2rem;
+            }
+
+            .header-subtitle {
+                font-size: 0.95rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header {
+                padding: 1rem;
+            }
+
+            .app-title {
+                font-size: 1rem;
+                letter-spacing: 0.5px;
+            }
+
+            .header-subtitle {
+                font-size: 0.85rem;
+            }
+
+            .user-name {
+                font-size: 0.8rem;
+            }
+
+            .note-card {
+                padding: 1rem;
+            }
+
+            .note-title {
+                font-size: 1rem;
+            }
+
+            .modal-content {
+                padding: 1.5rem;
+            }
+
+            .form-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-top">
+            <div>
+                <div class="app-title">📓 Notes Manager</div>
+                <div class="header-subtitle">Organize your mind, build your future.</div>
+                <div class="user-name">by Prerna Palkar</div>
+            </div>
+            <button class="dark-mode-toggle" id="darkModeToggle" title="Toggle Dark Mode">🌙</button>
+        </div>
+    </header>
+
+    <!-- Controls -->
+    <div class="controls-section">
+        <input 
+            type="text" 
+            class="search-bar" 
+            id="searchInput" 
+            placeholder="Search notes... 🔍"
+        >
+        <div class="filter-group">
+            <select class="filter-select" id="filterSelect">
+                <option value="all">📌 All Notes</option>
+                <option value="yellow">📚 Study</option>
+                <option value="blue">💼 Work</option>
+                <option value="pink">💭 Personal</option>
+            </select>
+            <button class="add-note-btn" id="addNoteBtn">+ New Note</button>
+        </div>
+    </div>
+
+    <!-- Notes Container -->
+    <div class="notes-container" id="notesContainer">
+        <!-- Notes will be dynamically inserted here -->
+    </div>
+
+    <!-- Create/Edit Note Modal -->
+    <div class="modal" id="noteModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Create New Note</h2>
+                <button class="modal-close" id="modalClose">✕</button>
+            </div>
+
+            <form id="noteForm">
+                <div class="form-group">
+                    <label class="form-label">Note Title</label>
+                    <input 
+                        type="text" 
+                        class="form-input" 
+                        id="noteTitle" 
+                        placeholder="Give your note a title..." 
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Content</label>
+                    <textarea 
+                        class="form-textarea" 
+                        id="noteContent" 
+                        placeholder="Write your thoughts here…" 
+                        required
+                    ></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">How are you feeling?</label>
+                    <div class="mood-selector">
+                        <button type="button" class="mood-option" data-mood="😊" title="Happy">😊</button>
+                        <button type="button" class="mood-option" data-mood="😔" title="Sad">😔</button>
+                        <button type="button" class="mood-option" data-mood="🚀" title="Motivated">🚀</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <div class="color-selector">
+                        <button type="button" class="color-option yellow" data-color="yellow" title="Study">📚</button>
+                        <button type="button" class="color-option blue" data-color="blue" title="Work">💼</button>
+                        <button type="button" class="color-option pink" data-color="pink" title="Personal">💭</button>
+                    </div>
+                </div>
+
+                <div class="form-buttons">
+                    <button type="submit" class="form-btn btn-save" id="saveBtn">Save Note</button>
+                    <button type="button" class="form-btn btn-cancel" id="cancelBtn">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // ========== STATE MANAGEMENT ==========
+        let notes = [];
+        let editingNoteId = null;
+        let selectedMood = '😊';
+        let selectedColor = 'yellow';
+
+        // ========== DOM ELEMENTS ==========
+        const notesContainer = document.getElementById('notesContainer');
+        const searchInput = document.getElementById('searchInput');
+        const filterSelect = document.getElementById('filterSelect');
+        const addNoteBtn = document.getElementById('addNoteBtn');
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const noteModal = document.getElementById('noteModal');
+        const modalClose = document.getElementById('modalClose');
+        const noteForm = document.getElementById('noteForm');
+        const noteTitle = document.getElementById('noteTitle');
+        const noteContent = document.getElementById('noteContent');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const saveBtn = document.getElementById('saveBtn');
+        const modalTitle = document.getElementById('modalTitle');
+
+        // ========== LOCALSTORAGE MANAGEMENT ==========
+        function loadNotes() {
+            const stored = localStorage.getItem('notes');
+            notes = stored ? JSON.parse(stored) : [];
+        }
+
+        function saveNotesToStorage() {
+            localStorage.setItem('notes', JSON.stringify(notes));
+        }
+
+        function loadDarkModePreference() {
+            const isDarkMode = localStorage.getItem('darkMode') === 'true';
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+                darkModeToggle.textContent = '☀️';
+            }
+        }
+
+        // ========== NOTE MANAGEMENT ==========
+        function createNoteElement(note) {
+            const categoryLabels = {
+                yellow: '📚 Study',
+                blue: '💼 Work',
+                pink: '💭 Personal'
+            };
+
+            const noteDiv = document.createElement('div');
+            noteDiv.className = `note-card color-${note.color}`;
+            noteDiv.draggable = true;
+            noteDiv.dataset.id = note.id;
+
+            const contentPreview = note.content.substring(0, 120) + (note.content.length > 120 ? '...' : '');
+            const dateStr = new Date(note.createdAt).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            });
+
+            noteDiv.innerHTML = `
+                <div class="note-header">
+                    <div class="note-mood">${note.mood}</div>
+                    <div class="note-actions">
+                        <button class="note-btn" onclick="editNote(${note.id})" title="Edit">✎</button>
+                        <button class="note-btn" onclick="deleteNote(${note.id})" title="Delete">🗑</button>
+                    </div>
+                </div>
+                <h3 class="note-title">${escapeHtml(note.title)}</h3>
+                <p class="note-content">${escapeHtml(contentPreview)}</p>
+                <div class="note-footer">
+                    <span class="note-category ${note.color}">${categoryLabels[note.color]}</span>
+                    <span class="note-date">${dateStr}</span>
+                </div>
+            `;
+
+            // Drag and drop events
+            noteDiv.addEventListener('dragstart', handleDragStart);
+            noteDiv.addEventListener('dragend', handleDragEnd);
+            noteDiv.addEventListener('dragover', handleDragOver);
+            noteDiv.addEventListener('drop', handleDrop);
+
+            return noteDiv;
+        }
+
+        function renderNotes(notesToRender = notes) {
+            notesContainer.innerHTML = '';
+
+            if (notesToRender.length === 0) {
+                notesContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📭</div>
+                        <h3 class="empty-title">No notes yet</h3>
+                        <p class="empty-text">Create your first note to get started! Click "New Note" to begin.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            notesToRender.forEach(note => {
+                notesContainer.appendChild(createNoteElement(note));
+            });
+        }
+
+        function addNote(title, content, mood, color) {
+            const newNote = {
+                id: Date.now(),
+                title,
+                content,
+                mood,
+                color,
+                createdAt: new Date().toISOString()
+            };
+
+            notes.unshift(newNote);
+            saveNotesToStorage();
+            applyFilters();
+        }
+
+        function updateNote(id, title, content, mood, color) {
+            const note = notes.find(n => n.id === id);
+            if (note) {
+                note.title = title;
+                note.content = content;
+                note.mood = mood;
+                note.color = color;
+                saveNotesToStorage();
+                applyFilters();
+            }
+        }
+
+        function deleteNote(id) {
+            if (confirm('Are you sure you want to delete this note?')) {
+                notes = notes.filter(n => n.id !== id);
+                saveNotesToStorage();
+                applyFilters();
+            }
+        }
+
+        // ========== SEARCH AND FILTER ==========
+        function applyFilters() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const filterColor = filterSelect.value;
+
+            let filteredNotes = notes;
+
+            // Filter by color
+            if (filterColor !== 'all') {
+                filteredNotes = filteredNotes.filter(n => n.color === filterColor);
+            }
+
+            // Filter by search term
+            if (searchTerm) {
+                filteredNotes = filteredNotes.filter(n =>
+                    n.title.toLowerCase().includes(searchTerm) ||
+                    n.content.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            renderNotes(filteredNotes);
+        }
+
+        searchInput.addEventListener('input', applyFilters);
+        filterSelect.addEventListener('change', applyFilters);
+
+        // ========== MODAL MANAGEMENT ==========
+        function openModal(title = 'Create New Note') {
+            editingNoteId = null;
+            selectedMood = '😊';
+            selectedColor = 'yellow';
+            noteForm.reset();
+            modalTitle.textContent = title;
+            noteTitle.focus();
+            updateMoodDisplay();
+            updateColorDisplay();
+            noteModal.classList.add('active');
+        }
+
+        function editNote(id) {
+            const note = notes.find(n => n.id === id);
+            if (!note) return;
+
+            editingNoteId = id;
+            selectedMood = note.mood;
+            selectedColor = note.color;
+            noteTitle.value = note.title;
+            noteContent.value = note.content;
+            modalTitle.textContent = 'Edit Note';
+            updateMoodDisplay();
+            updateColorDisplay();
+            noteModal.classList.add('active');
+            noteTitle.focus();
+        }
+
+        function closeModal() {
+            noteModal.classList.remove('active');
+            noteForm.reset();
+            editingNoteId = null;
+        }
+
+        function updateMoodDisplay() {
+            document.querySelectorAll('.mood-option').forEach(btn => {
+                btn.classList.remove('selected');
+                if (btn.dataset.mood === selectedMood) {
+                    btn.classList.add('selected');
+                }
+            });
+        }
+
+        function updateColorDisplay() {
+            document.querySelectorAll('.color-option').forEach(btn => {
+                btn.classList.remove('selected');
+                if (btn.dataset.color === selectedColor) {
+                    btn.classList.add('selected');
+                }
+            });
+        }
+
+        addNoteBtn.addEventListener('click', () => openModal());
+        modalClose.addEventListener('click', closeModal);
+        cancelBtn.addEventListener('click', closeModal);
+
+        // Close modal when clicking outside
+        noteModal.addEventListener('click', (e) => {
+            if (e.target === noteModal) {
+                closeModal();
+            }
+        });
+
+        // ========== MOOD AND COLOR SELECTION ==========
+        document.querySelectorAll('.mood-option').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                selectedMood = btn.dataset.mood;
+                updateMoodDisplay();
+            });
+        });
+
+        document.querySelectorAll('.color-option').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                selectedColor = btn.dataset.color;
+                updateColorDisplay();
+            });
+        });
+
+        // ========== FORM SUBMISSION ==========
+        noteForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const title = noteTitle.value.trim();
+            const content = noteContent.value.trim();
+
+            if (!title || !content) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            if (editingNoteId) {
+                updateNote(editingNoteId, title, content, selectedMood, selectedColor);
+                showNotification('Note updated successfully!');
+            } else {
+                addNote(title, content, selectedMood, selectedColor);
+                showNotification('Note created successfully!');
+            }
+
+            closeModal();
+        });
+
+        // ========== DRAG AND DROP ==========
+        let draggedElement = null;
+
+        function handleDragStart(e) {
+            draggedElement = this;
+            this.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleDragEnd(e) {
+            this.classList.remove('dragging');
+            draggedElement = null;
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+
+            if (this !== draggedElement && this.classList.contains('note-card')) {
+                this.style.opacity = '0.5';
+            }
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+
+            if (this !== draggedElement && this.classList.contains('note-card')) {
+                const draggedId = parseInt(draggedElement.dataset.id);
+                const targetId = parseInt(this.dataset.id);
+
+                const draggedIndex = notes.findIndex(n => n.id === draggedId);
+                const targetIndex = notes.findIndex(n => n.id === targetId);
+
+                if (draggedIndex !== -1 && targetIndex !== -1) {
+                    [notes[draggedIndex], notes[targetIndex]] = [notes[targetIndex], notes[draggedIndex]];
+                    saveNotesToStorage();
+                    applyFilters();
+                }
+
+                this.style.opacity = '1';
+            }
+        }
+
+        // ========== DARK MODE ==========
+        darkModeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDarkMode);
+            darkModeToggle.textContent = isDarkMode ? '☀️' : '🌙';
+        });
+
+        // ========== UTILITIES ==========
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background-color: var(--accent);
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(212, 165, 116, 0.3);
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Add animation styles for notifications
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // ========== INITIALIZATION ==========
+        document.addEventListener('DOMContentLoaded', () => {
+            loadNotes();
+            loadDarkModePreference();
+            renderNotes();
+        });
+    </script>
+</body>
+</html>

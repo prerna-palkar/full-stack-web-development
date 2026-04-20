@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Threadly</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family:'Inter',sans-serif;
+  background: linear-gradient(135deg,#0f172a,#020617);
+  color:white;
+  cursor:none;
+}
+
+/* CUSTOM CURSOR */
+.cursor{
+  width:16px;
+  height:16px;
+  background:#22c55e;
+  border-radius:50%;
+  position:fixed;
+  pointer-events:none;
+  box-shadow:0 0 12px #22c55e;
+  transform:translate(-50%,-50%);
+}
+
+/* HEADER */
+.header{
+  text-align:center;
+  padding:20px;
+  font-size:24px;
+  font-weight:bold;
+}
+
+/* CONTAINER */
+.container{
+  max-width:800px;
+  margin:auto;
+  padding:20px;
+}
+
+/* CARD */
+.card{
+  background:rgba(255,255,255,0.05);
+  backdrop-filter:blur(10px);
+  border-radius:14px;
+  padding:15px;
+  margin-bottom:15px;
+  animation:fade 0.4s;
+}
+
+/* INPUT */
+textarea{
+  width:100%;
+  padding:10px;
+  border-radius:8px;
+  border:none;
+  margin-bottom:10px;
+}
+
+/* BUTTON */
+button{
+  padding:8px 12px;
+  border:none;
+  border-radius:8px;
+  background:#6366f1;
+  color:white;
+  cursor:pointer;
+}
+
+/* POST */
+.post-header{
+  font-size:13px;
+  opacity:0.7;
+  margin-bottom:5px;
+}
+
+.actions{
+  margin-top:10px;
+  display:flex;
+  gap:10px;
+}
+
+/* COMMENTS */
+.comment{
+  margin-top:8px;
+  font-size:14px;
+  opacity:0.8;
+}
+
+/* TOAST */
+.toast{
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  background:#22c55e;
+  padding:10px;
+  border-radius:10px;
+}
+
+@keyframes fade{
+  from{opacity:0; transform:translateY(10px);}
+  to{opacity:1;}
+}
+</style>
+</head>
+
+<body>
+
+<div class="cursor" id="cursor"></div>
+
+<div class="header">💬 Threadly</div>
+
+<div class="container">
+
+<!-- CREATE POST -->
+<div class="card">
+  <textarea id="postInput" placeholder="Start a discussion..."></textarea>
+  <button onclick="addPost()">Post</button>
+</div>
+
+<!-- POSTS -->
+<div id="posts"></div>
+
+</div>
+
+<script>
+
+let username = "Prerna";
+let posts = [];
+
+/* CURSOR */
+document.addEventListener("mousemove", e=>{
+  cursor.style.left = e.clientX + "px";
+  cursor.style.top = e.clientY + "px";
+});
+
+/* TOAST */
+function toast(msg){
+  let t=document.createElement("div");
+  t.className="toast";
+  t.innerText=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),2000);
+}
+
+/* ADD POST */
+function addPost(){
+
+  let text = postInput.value;
+  if(!text) return;
+
+  posts.unshift({
+    text,
+    likes:0,
+    comments:[],
+    time:new Date().toLocaleTimeString()
+  });
+
+  postInput.value="";
+  toast("Posted!");
+  render();
+}
+
+/* LIKE */
+function like(i){
+  posts[i].likes++;
+  render();
+}
+
+/* COMMENT */
+function addComment(i){
+  let c = prompt("Write comment:");
+  if(!c) return;
+
+  posts[i].comments.push(c);
+  render();
+}
+
+/* DELETE */
+function deletePost(i){
+  posts.splice(i,1);
+  toast("Deleted");
+  render();
+}
+
+/* RENDER */
+function render(){
+
+  let box=document.getElementById("posts");
+  box.innerHTML="";
+
+  posts.forEach((p,i)=>{
+
+    box.innerHTML += `
+      <div class="card">
+        <div class="post-header">
+          ${username} • ${p.time}
+        </div>
+
+        <div>${p.text}</div>
+
+        <div class="actions">
+          <button onclick="like(${i})">👍 ${p.likes}</button>
+          <button onclick="addComment(${i})">💬</button>
+          <button onclick="deletePost(${i})">Delete</button>
+        </div>
+
+        ${p.comments.map(c=>`
+          <div class="comment">• ${c}</div>
+        `).join("")}
+      </div>
+    `;
+  });
+}
+
+</script>
+
+</body>
+</html>

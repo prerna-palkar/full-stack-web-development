@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Literary Haven - A cozy corner for timeless stories</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --pearl-white: #F8F6F2;
+            --warm-beige: #E6CCB2;
+            --dusty-rose: #D8A7B1;
+            --muted-sage: #A3B18A;
+            --soft-brown: #7F5539;
+            --dark-text: #3d3d3d;
+            --light-text: #6b6b6b;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--pearl-white) 0%, #f5f0e8 40%, #f9f5f1 100%);
+            color: var(--dark-text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            cursor: none;
+            position: relative;
+        }
+
+        /* Paper texture */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3' seed='1'/%3E%3C/filter%3E%3Crect width='60' height='60' filter='url(%23noise)' opacity='0.012'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Custom Cursor */
+        .cursor {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: var(--soft-brown);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            display: none;
+            box-shadow: 0 0 6px rgba(127, 85, 57, 0.5);
+        }
+
+        .cursor.active { display: block; }
+
+        .cursor-ring {
+            position: fixed;
+            width: 32px;
+            height: 32px;
+            border: 2px solid var(--soft-brown);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+            opacity: 0.4;
+            display: none;
+        }
+
+        .cursor-ring.active { display: block; }
+
+        /* Header */
+        header {
+            background: rgba(248, 246, 242, 0.7);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(216, 167, 177, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 16px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--soft-brown);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .logo-icon { font-size: 2rem; }
+
+        .btn-favorites {
+            background: linear-gradient(135deg, var(--dusty-rose) 0%, var(--warm-beige) 100%);
+            color: white;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(216, 167, 177, 0.25);
+            font-size: 0.9rem;
+        }
+
+        .btn-favorites:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(216, 167, 177, 0.35);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 50px 20px;
+            position: relative;
+            z-index: 3;
+        }
+
+        /* Hero */
+        .hero {
+            text-align: center;
+            margin-bottom: 50px;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.2rem;
+            color: var(--soft-brown);
+            margin-bottom: 10px;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            color: var(--light-text);
+            font-weight: 300;
+            letter-spacing: 0.5px;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-25px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Search & Filter */
+        .search-filter {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            padding: 30px 35px;
+            border-radius: 20px;
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            margin-bottom: 50px;
+            animation: fadeIn 1s ease 0.2s both;
+        }
+
+        .search-filter-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 16px 12px 45px;
+            border: 2px solid rgba(216, 167, 177, 0.25);
+            border-radius: 12px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95rem;
+            color: var(--dark-text);
+            background: rgba(255, 255, 255, 0.9);
+            transition: all 0.3s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--dusty-rose);
+            box-shadow: 0 0 0 3px rgba(216, 167, 177, 0.1);
+            background: white;
+        }
+
+        .search-box input::placeholder {
+            color: var(--light-text);
+            opacity: 0.6;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--dusty-rose);
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        .filter-btn {
+            padding: 8px 14px;
+            border: 2px solid rgba(163, 177, 138, 0.3);
+            background: rgba(163, 177, 138, 0.08);
+            color: var(--soft-brown);
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: linear-gradient(135deg, var(--dusty-rose) 0%, var(--warm-beige) 100%);
+            color: white;
+            border-color: var(--dusty-rose);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(216, 167, 177, 0.25);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Section Title */
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: var(--soft-brown);
+            margin-bottom: 35px;
+            font-weight: 800;
+            display: flex;
+            gap: 10px;
+        }
+
+        .section-title i { color: var(--dusty-rose); font-size: 1.8rem; }
+
+        /* Books Grid */
+        .books-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 28px;
+            margin-bottom: 50px;
+            animation: fadeIn 1s ease 0.4s both;
+        }
+
+        .book-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .book-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.15);
+        }
+
+        .book-image {
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+            background: linear-gradient(135deg, var(--dusty-rose) 0%, var(--muted-sage) 100%);
+        }
+
+        .book-card:hover .book-image {
+            transform: scale(1.08);
+        }
+
+        .favorite-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .favorite-btn:hover {
+            transform: scale(1.15);
+            background: var(--dusty-rose);
+            color: white;
+        }
+
+        .favorite-btn.active {
+            background: var(--dusty-rose);
+            color: white;
+        }
+
+        .book-info {
+            padding: 20px;
+        }
+
+        .book-genre {
+            display: inline-block;
+            padding: 5px 10px;
+            background: rgba(163, 177, 138, 0.18);
+            color: var(--muted-sage);
+            border-radius: 16px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            margin-bottom: 10px;
+        }
+
+        .book-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--dark-text);
+            margin-bottom: 6px;
+            line-height: 1.3;
+            min-height: 2.6em;
+        }
+
+        .book-author {
+            font-size: 0.85rem;
+            color: var(--light-text);
+            margin-bottom: 10px;
+        }
+
+        .book-desc {
+            font-size: 0.8rem;
+            color: var(--light-text);
+            line-height: 1.4;
+            margin-bottom: 12px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .btn-read {
+            width: 100%;
+            padding: 9px;
+            background: linear-gradient(135deg, var(--dusty-rose) 0%, var(--warm-beige) 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .btn-read:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(216, 167, 177, 0.3);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(6px);
+        }
+
+        .modal.active {
+            display: flex;
+            animation: fadeInModal 0.3s ease;
+        }
+
+        @keyframes fadeInModal {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            max-width: 850px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            animation: slideUpModal 0.3s ease;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes slideUpModal {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            display: grid;
+            grid-template-columns: 1fr 1.3fr;
+            gap: 30px;
+            padding: 35px;
+            border-bottom: 1px solid #e8ddd0;
+            align-items: start;
+            background: rgba(248, 246, 242, 0.4);
+        }
+
+        .modal-image {
+            width: 100%;
+            height: 360px;
+            object-fit: cover;
+            border-radius: 14px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        .modal-book-info h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: var(--soft-brown);
+            margin-bottom: 6px;
+            font-weight: 800;
+        }
+
+        .modal-author {
+            font-size: 0.95rem;
+            color: var(--light-text);
+            margin-bottom: 18px;
+        }
+
+        .modal-meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        .meta-box {
+            padding: 12px;
+            background: rgba(163, 177, 138, 0.1);
+            border-radius: 10px;
+            border-left: 4px solid var(--muted-sage);
+        }
+
+        .meta-label {
+            font-size: 0.7rem;
+            color: var(--light-text);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .meta-value {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--soft-brown);
+        }
+
+        .modal-body {
+            padding: 30px 35px;
+        }
+
+        .modal-body h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem;
+            color: var(--soft-brown);
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .modal-body p {
+            color: var(--light-text);
+            line-height: 1.7;
+            font-size: 0.9rem;
+        }
+
+        .modal-footer {
+            padding: 20px 35px;
+            border-top: 1px solid #e8ddd0;
+            background: rgba(248, 246, 242, 0.3);
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .modal-footer button {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.4px;
+        }
+
+        .btn-add-fav {
+            background: linear-gradient(135deg, var(--dusty-rose) 0%, var(--warm-beige) 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(216, 167, 177, 0.2);
+        }
+
+        .btn-add-fav:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(216, 167, 177, 0.3);
+        }
+
+        .btn-close {
+            background: #e8ddd0;
+            color: var(--soft-brown);
+        }
+
+        .btn-close:hover {
+            background: #dcccc2;
+            transform: translateY(-2px);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--light-text);
+            transition: color 0.3s ease;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-modal:hover {
+            color: var(--dusty-rose);
+        }
+
+        /* Favorites Section */
+        .favorites-section {
+            animation: fadeIn 1s ease 0.5s both;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--light-text);
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            opacity: 0.12;
+            margin-bottom: 10px;
+        }
+
+        .empty-text {
+            font-size: 1rem;
+            font-weight: 300;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(107, 79, 79, 0.9);
+            backdrop-filter: blur(20px);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            z-index: 10000;
+            animation: slideInUp 0.3s ease;
+        }
+
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--light-text);
+            grid-column: 1 / -1;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .search-filter-grid { grid-template-columns: 1fr; }
+            .modal-header { grid-template-columns: 1fr; gap: 20px; }
+            .books-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+            .hero h1 { font-size: 2.5rem; }
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 35px 15px; }
+            .hero { margin-bottom: 35px; }
+            .hero h1 { font-size: 2rem; }
+            .hero p { font-size: 0.95rem; }
+            .search-filter { padding: 20px 20px; }
+            .books-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 18px; }
+            .book-image { height: 220px; }
+            .book-info { padding: 15px; }
+            .section-title { font-size: 1.5rem; }
+            .modal-header { padding: 25px; gap: 20px; }
+            .modal-image { height: 280px; }
+            .modal-book-info h2 { font-size: 1.6rem; }
+            .modal-body { padding: 25px; }
+        }
+
+        @media (max-width: 480px) {
+            .container { padding: 20px 12px; }
+            .hero h1 { font-size: 1.5rem; }
+            .search-filter { padding: 16px 12px; margin-bottom: 30px; }
+            .search-filter-grid { gap: 12px; }
+            .search-box input { font-size: 0.9rem; padding: 10px 14px 10px 38px; }
+            .filter-buttons { gap: 6px; }
+            .books-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 14px; }
+            .book-image { height: 180px; }
+            .book-info { padding: 12px; }
+            .book-title { font-size: 0.95rem; min-height: auto; }
+            .book-desc { display: none; }
+            .btn-read { padding: 8px; font-size: 0.75rem; }
+            .section-title { font-size: 1.3rem; }
+            .modal-header { grid-template-columns: 1fr; padding: 18px; }
+            .modal-image { height: 200px; }
+            .modal-book-info h2 { font-size: 1.4rem; }
+            .modal-body { padding: 18px; }
+            .modal-footer { padding: 15px 18px; }
+            .toast { right: 10px; left: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="cursor"></div>
+    <div class="cursor-ring"></div>
+
+    <header>
+        <div class="header-content">
+            <div class="logo" onclick="window.location.reload()">
+                <span class="logo-icon">📚</span>
+                <span>Literary Haven</span>
+            </div>
+            <button class="btn-favorites" onclick="viewFavorites()">
+                <i class="fas fa-heart"></i> Saved (<span id="favCount">0</span>)
+            </button>
+        </div>
+    </header>
+
+    <div class="container">
+        <section class="hero">
+            <h1>Discover Stories</h1>
+            <p>A cozy corner for timeless stories</p>
+        </section>
+
+        <section class="search-filter">
+            <div class="search-filter-grid">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Search by title or author...">
+                </div>
+                <div class="filter-buttons">
+                    <span class="filter-label">Genre:</span>
+                    <button class="filter-btn active" onclick="filterBooks('')">All</button>
+                    <button class="filter-btn" onclick="filterBooks('Romance')">Romance</button>
+                    <button class="filter-btn" onclick="filterBooks('Self-Help')">Self-Help</button>
+                    <button class="filter-btn" onclick="filterBooks('Business')">Business</button>
+                    <button class="filter-btn" onclick="filterBooks('Fiction')">Fiction</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="mainSection">
+            <h2 class="section-title"><i class="fas fa-book"></i> Collection</h2>
+            <div class="books-grid" id="booksGrid"></div>
+        </section>
+
+        <section class="favorites-section" id="favoritesSection" style="display: none;">
+            <h2 class="section-title"><i class="fas fa-heart"></i> Saved Books</h2>
+            <div id="favoritesGrid"></div>
+        </section>
+    </div>
+
+    <div class="modal" id="bookModal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal()">&times;</button>
+            <div class="modal-header" id="modalHeader"></div>
+            <div class="modal-body" id="modalBody"></div>
+            <div class="modal-footer">
+                <button class="btn-add-fav" onclick="addToFavorites()"><i class="fas fa-plus"></i> Save</button>
+                <button class="btn-close" onclick="closeModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const books = [
+            {
+                id: 1,
+                title: "Atomic Habits",
+                author: "James Clear",
+                genre: "Self-Help",
+                description: "Transform your life through tiny, consistent habits.",
+                fullDescription: "Atomic Habits explores how tiny changes can lead to remarkable results. James Clear provides a practical framework for building good habits, breaking bad ones, and mastering the small behaviors that lead to extraordinary outcomes in every area of life.",
+                image: "https://images.unsplash.com/photo-1507842217343-583f7270bfba?w=350&h=500&fit=crop&q=80"
+            },
+            {
+                id: 2,
+                title: "It Ends With Us",
+                author: "Colleen Hoover",
+                genre: "Romance",
+                description: "A powerful story about love, strength, and breaking cycles.",
+                fullDescription: "Lily Bloom's life changes when she meets Ryle, a neurosurgeon who sweeps her off her feet. This emotionally charged narrative explores the complexities of love, family trauma, and the courage needed to break destructive patterns.",
+                image: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=350&h=500&fit=crop&q=80"
+            },
+            {
+                id: 3,
+                title: "Rich Dad Poor Dad",
+                author: "Robert Kiyosaki",
+                genre: "Business",
+                description: "Financial wisdom from two fathers with different perspectives.",
+                fullDescription: "A classic that challenges conventional thinking about money. Through contrasting lessons of a rich dad and poor dad, Kiyosaki reveals secrets of building wealth and achieving financial independence.",
+                image: "https://images.unsplash.com/photo-1519052537078-e6302a4968d4?w=350&h=500&fit=crop&q=80"
+            },
+            {
+                id: 4,
+                title: "The Alchemist",
+                author: "Paulo Coelho",
+                genre: "Fiction",
+                description: "A timeless journey of self-discovery and destiny.",
+                fullDescription: "Follow Santiago's quest across deserts as he pursues his personal legend. A philosophical novel about listening to your heart, following dreams, and understanding the universe's language.",
+                image: "https://images.unsplash.com/photo-1544716278-ca5e3af2abd8?w=350&h=500&fit=crop&q=80"
+            },
+            {
+                id: 5,
+                title: "Ikigai",
+                author: "Héctor García & Francesc Miralles",
+                genre: "Self-Help",
+                description: "Discover your reason for being and live a fulfilling life.",
+                fullDescription: "Explore the Japanese concept of ikigai. This book combines Japanese wisdom with modern science to help you discover what makes life worth living.",
+                image: "https://images.unsplash.com/photo-1507842217343-583f7270bfba?w=350&h=500&fit=crop&q=80"
+            },
+            {
+                id: 6,
+                title: "Pride and Prejudice",
+                author: "Jane Austen",
+                genre: "Romance",
+                description: "A timeless love story of passion and personal growth.",
+                fullDescription: "Elizabeth Bennet and Mr. Darcy navigate societal expectations and personal prejudices. A portrait of the complexities of love and self-knowledge in this masterpiece.",
+                image: "https://images.unsplash.com/photo-1518895949257-7621c3c786d7?w=350&h=500&fit=crop&q=80"
+            },
+            {
+                id: 7,
+                title: "Think and Grow Rich",
+                author: "Napoleon Hill",
+                genre: "Business",
+                description: "The ultimate guide to success and financial achievement.",
+                fullDescription: "Napoleon Hill reveals secrets of the world's most successful people. A practical guide to harnessing thought's power and transforming your life.",
+                image: "https://images.unsplash.com/photo-1552820728-8ac41f1ce891?w=350&h=500&fit=crop&q=80"
+            },
+            {
+                id: 8,
+                title: "Deep Work",
+                author: "Cal Newport",
+                genre: "Business",
+                description: "Master concentration and achieve meaningful productivity.",
+                fullDescription: "Cal Newport teaches the lost art of deep work. Transform your career through the ability to focus on cognitively demanding tasks without distraction.",
+                image: "https://images.unsplash.com/photo-1507842217343-583f7270bfba?w=350&h=500&fit=crop&q=80"
+            },
+            {
+                id: 9,
+                title: "Harry Potter",
+                author: "J.K. Rowling",
+                genre: "Fiction",
+                description: "A magical journey of friendship and courage against darkness.",
+                fullDescription: "Follow Harry Potter through transformative years at Hogwarts. A tale of friendship, sacrifice, and the triumph of love over evil.",
+                image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=350&h=500&fit=crop&q=80"
+            },
+            {
+                id: 10,
+                title: "The Psychology of Money",
+                author: "Morgan Housel",
+                genre: "Business",
+                description: "Timeless lessons about money, behavior, and investing.",
+                fullDescription: "Morgan Housel explains why people misunderstand money. A collection of essays on wealth, the stock market, and how psychology shapes our financial decisions.",
+                image: "https://images.unsplash.com/photo-1519904981063-b0cf448d479e?w=350&h=500&fit=crop&q=80"
+            },
+            {
+                id: 11,
+                title: "The Seven Husbands",
+                author: "Taylor Jenkins Reid",
+                genre: "Romance",
+                description: "Seven marriages, endless secrets, and defining love.",
+                fullDescription: "Evelyn Hugo breaks decades of silence revealing truth about her glamorous Hollywood life. A captivating story of love, ambition, and the masks we wear.",
+                image: "https://images.unsplash.com/photo-1507842217343-583f7270bfba?w=350&h=500&fit=crop&q=80"
+            },
+            {
+                id: 12,
+                title: "Educated",
+                author: "Tara Westover",
+                genre: "Self-Help",
+                description: "From survivalism to Cambridge—a transformative memoir.",
+                fullDescription: "Tara's extraordinary journey from isolated Idaho to Cambridge University. A testament to education's power and the courage to redefine yourself.",
+                image: "https://images.unsplash.com/photo-1516979187457-635ffe35ebdb?w=350&h=500&fit=crop&q=80"
+            }
+        ];
+
+        let favorites = [];
+        let currentBook = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initCursor();
+            loadFavorites();
+            renderBooks(books);
+            setupSearch();
+            updateFavCount();
+        });
+
+        function renderBooks(booksToRender) {
+            const grid = document.getElementById('booksGrid');
+            
+            if (booksToRender.length === 0) {
+                grid.innerHTML = '<div class="no-results" style="grid-column: 1/-1;">No books found</div>';
+                return;
+            }
+
+            grid.innerHTML = booksToRender.map((book, i) => `
+                <div class="book-card" style="animation-delay: ${i * 0.05}s">
+                    <img src="${book.image}" alt="${book.title}" class="book-image" onerror="this.style.background='linear-gradient(135deg, var(--dusty-rose) 0%, var(--muted-sage) 100%)'">
+                    <button class="favorite-btn ${isFav(book.id) ? 'active' : ''}" onclick="toggleFav(event, ${book.id})">
+                        <i class="fas fa-heart"></i>
+                    </button>
+                    <div class="book-info">
+                        <div class="book-genre">${book.genre}</div>
+                        <div class="book-title">${book.title}</div>
+                        <div class="book-author">by ${book.author}</div>
+                        <p class="book-desc">${book.description}</p>
+                        <button class="btn-read" onclick="openModal(${book.id})">View Details</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openModal(id) {
+            currentBook = books.find(b => b.id === id);
+            document.getElementById('modalHeader').innerHTML = `
+                <img src="${currentBook.image}" alt="${currentBook.title}" class="modal-image" onerror="this.style.background='linear-gradient(135deg, var(--dusty-rose) 0%, var(--muted-sage) 100%)'">
+                <div class="modal-book-info">
+                    <h2>${currentBook.title}</h2>
+                    <p class="modal-author">by ${currentBook.author}</p>
+                    <div class="modal-meta">
+                        <div class="meta-box">
+                            <div class="meta-label">Genre</div>
+                            <div class="meta-value">${currentBook.genre}</div>
+                        </div>
+                        <div class="meta-box">
+                            <div class="meta-label">Status</div>
+                            <div class="meta-value">${isFav(currentBook.id) ? '❤️ Saved' : 'Not Saved'}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('modalBody').innerHTML = `<h3>About</h3><p>${currentBook.fullDescription}</p>`;
+            document.getElementById('bookModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('bookModal').classList.remove('active');
+        }
+
+        function toggleFav(e, id) {
+            e.stopPropagation();
+            const idx = favorites.findIndex(f => f.id === id);
+            const book = books.find(b => b.id === id);
+            
+            if (idx > -1) {
+                favorites.splice(idx, 1);
+                showToast('Removed from saved');
+            } else {
+                favorites.push(book);
+                showToast('Added to saved ❤️');
+            }
+            
+            saveFavorites();
+            renderBooks(books);
+            updateFavCount();
+        }
+
+        function addToFavorites() {
+            if (currentBook && !isFav(currentBook.id)) {
+                favorites.push(currentBook);
+                saveFavorites();
+                updateFavCount();
+                showToast('Added to saved ❤️');
+                closeModal();
+                renderBooks(books);
+            }
+        }
+
+        function viewFavorites() {
+            const mainSection = document.getElementById('mainSection');
+            const favSection = document.getElementById('favoritesSection');
+            
+            if (favSection.style.display === 'none') {
+                mainSection.style.display = 'none';
+                favSection.style.display = 'block';
+                
+                const grid = document.getElementById('favoritesGrid');
+                if (favorites.length === 0) {
+                    grid.innerHTML = '<div class="empty-state"><div class="empty-icon">💭</div><p class="empty-text">No saved books yet</p></div>';
+                } else {
+                    grid.innerHTML = `<div class="books-grid">${favorites.map((book, i) => `
+                        <div class="book-card" style="animation-delay: ${i * 0.05}s">
+                            <img src="${book.image}" alt="${book.title}" class="book-image" onerror="this.style.background='linear-gradient(135deg, var(--dusty-rose) 0%, var(--muted-sage) 100%)'">
+                            <button class="favorite-btn active" onclick="toggleFav(event, ${book.id})"><i class="fas fa-heart"></i></button>
+                            <div class="book-info">
+                                <div class="book-genre">${book.genre}</div>
+                                <div class="book-title">${book.title}</div>
+                                <div class="book-author">by ${book.author}</div>
+                                <p class="book-desc">${book.description}</p>
+                                <button class="btn-read" onclick="openModal(${book.id})">View Details</button>
+                            </div>
+                        </div>
+                    `).join('')}</div>`;
+                }
+                favSection.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                mainSection.style.display = 'block';
+                favSection.style.display = 'none';
+            }
+        }
+
+        function filterBooks(genre) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            renderBooks(genre ? books.filter(b => b.genre === genre) : books);
+        }
+
+        function setupSearch() {
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                const term = e.target.value.toLowerCase();
+                const filtered = books.filter(b => b.title.toLowerCase().includes(term) || b.author.toLowerCase().includes(term));
+                renderBooks(filtered);
+            });
+        }
+
+        function isFav(id) { return favorites.some(f => f.id === id); }
+
+        function saveFavorites() {
+            localStorage.setItem('literaryHavenFav', JSON.stringify(favorites));
+        }
+
+        function loadFavorites() {
+            const stored = localStorage.getItem('literaryHavenFav');
+            if (stored) favorites = JSON.parse(stored);
+        }
+
+        function updateFavCount() {
+            document.getElementById('favCount').textContent = favorites.length;
+        }
+
+        function showToast(msg) {
+            const t = document.createElement('div');
+            t.className = 'toast';
+            t.textContent = msg;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 2500);
+        }
+
+        function initCursor() {
+            const cursor = document.querySelector('.cursor');
+            const ring = document.querySelector('.cursor-ring');
+            let ringX = 0, ringY = 0;
+
+            document.addEventListener('mousemove', (e) => {
+                cursor.style.left = (e.clientX - 5) + 'px';
+                cursor.style.top = (e.clientY - 5) + 'px';
+                ringX += (e.clientX - ringX) * 0.25;
+                ringY += (e.clientY - ringY) * 0.25;
+                ring.style.left = (ringX - 16) + 'px';
+                ring.style.top = (ringY - 16) + 'px';
+                cursor.classList.add('active');
+                ring.classList.add('active');
+            });
+
+            document.addEventListener('mouseleave', () => {
+                cursor.classList.remove('active');
+                ring.classList.remove('active');
+            });
+
+            document.addEventListener('mouseover', (e) => {
+                if (e.target.closest('.book-card, button, input')) {
+                    cursor.style.width = '14px';
+                    cursor.style.height = '14px';
+                    ring.style.width = '38px';
+                    ring.style.height = '38px';
+                    ring.style.opacity = '0.7';
+                }
+            });
+
+            document.addEventListener('mouseout', (e) => {
+                if (e.target.closest('.book-card, button, input')) {
+                    cursor.style.width = '10px';
+                    cursor.style.height = '10px';
+                    ring.style.width = '32px';
+                    ring.style.height = '32px';
+                    ring.style.opacity = '0.4';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

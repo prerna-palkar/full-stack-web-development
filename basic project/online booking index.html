@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Residency Booking</title>
+
+<style>
+body{
+  margin:0;
+  font-family: "Georgia", serif;
+  background:#f5ecd7;
+  color:#3b2f2f;
+}
+
+/* HEADER */
+header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:15px 30px;
+  background:#fff7e6;
+  border-bottom:2px solid #c8a97e;
+}
+
+/* LOGO */
+.logo{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:22px;
+  font-weight:bold;
+  color:#5a3e2b;
+}
+
+.logo img{
+  width:45px;
+  height:45px;
+  border-radius:50%;
+  border:2px solid #b08d57;
+}
+
+/* HERO */
+.hero{
+  position:relative;
+  height:300px;
+  background:url("https://images.unsplash.com/photo-1520250497591-112f2f40a3f4") center/cover;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:white;
+}
+
+.hero::after{
+  content:"";
+  position:absolute;
+  top:0;left:0;
+  width:100%;height:100%;
+  background:rgba(0,0,0,0.4);
+}
+
+.hero h1{
+  position:relative;
+  font-size:40px;
+  letter-spacing:2px;
+}
+
+/* CONTAINER */
+.container{
+  display:flex;
+  flex-wrap:wrap;
+  gap:20px;
+  justify-content:center;
+  padding:20px;
+}
+
+/* FORM */
+.form{
+  background:#fff7e6;
+  padding:20px;
+  border-radius:15px;
+  width:300px;
+  border:2px solid #c8a97e;
+  box-shadow:0 10px 20px rgba(0,0,0,0.1);
+}
+
+input, select{
+  width:100%;
+  padding:10px;
+  margin:8px 0;
+  border:1px solid #c8a97e;
+  border-radius:10px;
+  font-family:Georgia;
+}
+
+button{
+  width:100%;
+  padding:10px;
+  background:#b08d57;
+  color:white;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+button:hover{
+  background:#8c6b3a;
+}
+
+/* BOOKINGS */
+.bookings{
+  flex:1;
+  min-width:300px;
+}
+
+.card{
+  background:#fffaf0;
+  border-left:6px solid #b08d57;
+  padding:15px;
+  margin-bottom:10px;
+  border-radius:12px;
+  box-shadow:0 5px 15px rgba(0,0,0,0.05);
+  transition:0.3s;
+}
+
+.card:hover{
+  transform:translateY(-4px);
+}
+
+.title{
+  font-size:18px;
+  font-weight:bold;
+  color:#5a3e2b;
+}
+
+.small{
+  font-size:13px;
+  color:#7a5c3e;
+}
+
+.actions{
+  display:flex;
+  justify-content:space-between;
+  margin-top:10px;
+}
+
+.cancel{
+  color:red;
+  cursor:pointer;
+}
+
+/* SEARCH */
+.search{
+  text-align:center;
+  margin:15px;
+}
+
+.search input{
+  width:300px;
+  padding:10px;
+  border-radius:10px;
+  border:1px solid #c8a97e;
+}
+
+/* RESPONSIVE */
+@media(max-width:700px){
+  .container{flex-direction:column;}
+  .search input{width:90%;}
+}
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <img src="https://cdn-icons-png.flaticon.com/512/235/235861.png">
+    Residency Booking
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <h1>Luxury Stays. Elegant Experience.</h1>
+</div>
+
+<!-- SEARCH -->
+<div class="search">
+  <input id="search" placeholder="Search bookings...">
+</div>
+
+<!-- MAIN -->
+<div class="container">
+
+<!-- FORM -->
+<div class="form">
+  <h3>Book Your Stay</h3>
+
+  <input id="name" placeholder="Your Name">
+
+  <select id="room">
+    <option>Deluxe Room</option>
+    <option>Royal Suite</option>
+    <option>Sea View Room</option>
+    <option>Presidential Suite</option>
+  </select>
+
+  <input type="date" id="date">
+  <input type="time" id="time">
+
+  <button onclick="book()">Confirm Booking</button>
+</div>
+
+<!-- BOOKINGS -->
+<div class="bookings" id="bookings"></div>
+
+</div>
+
+<script>
+let bookings = JSON.parse(localStorage.getItem("res_bookings")) || [];
+
+/* BOOK */
+function book(){
+  let name=document.getElementById("name").value;
+  let room=document.getElementById("room").value;
+  let date=document.getElementById("date").value;
+  let time=document.getElementById("time").value;
+
+  if(!name || !date || !time){
+    alert("Please fill all details");
+    return;
+  }
+
+  bookings.push({name,room,date,time});
+  localStorage.setItem("res_bookings",JSON.stringify(bookings));
+  render();
+
+  document.getElementById("name").value="";
+}
+
+/* DELETE */
+function remove(i){
+  bookings.splice(i,1);
+  localStorage.setItem("res_bookings",JSON.stringify(bookings));
+  render();
+}
+
+/* RENDER */
+function render(data=bookings){
+  let box=document.getElementById("bookings");
+  box.innerHTML="";
+
+  data.forEach((b,i)=>{
+    box.innerHTML+=`
+      <div class="card">
+        <div class="title">${b.name}</div>
+        <div class="small">🏨 ${b.room}</div>
+        <div class="small">📅 ${b.date} ⏰ ${b.time}</div>
+
+        <div class="actions">
+          <span class="small">Confirmed ✔</span>
+          <span class="cancel" onclick="remove(${i})">Cancel</span>
+        </div>
+      </div>
+    `;
+  });
+}
+
+/* SEARCH */
+document.getElementById("search").addEventListener("input",function(){
+  let v=this.value.toLowerCase();
+
+  let filtered=bookings.filter(b=>
+    b.name.toLowerCase().includes(v) ||
+    b.room.toLowerCase().includes(v)
+  );
+
+  render(filtered);
+});
+
+render();
+</script>
+
+</body>
+</html>

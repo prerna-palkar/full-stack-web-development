@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>File Upload System</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family:Segoe UI;
+  background:#0f172a;
+  color:white;
+}
+
+/* HEADER */
+.header{
+  text-align:center;
+  padding:15px;
+  background:#111827;
+  font-size:20px;
+  font-weight:bold;
+}
+
+/* CONTAINER */
+.container{
+  display:flex;
+  justify-content:center;
+  padding:20px;
+}
+
+/* UPLOAD BOX */
+.upload-box{
+  width:500px;
+  background:#1e293b;
+  padding:20px;
+  border-radius:12px;
+  text-align:center;
+  border:2px dashed #64748b;
+  cursor:pointer;
+}
+
+.upload-box:hover{
+  border-color:#22c55e;
+}
+
+/* INPUT */
+input{
+  display:none;
+}
+
+/* FILE LIST */
+.list{
+  margin-top:20px;
+  text-align:left;
+}
+
+.file{
+  background:#0f172a;
+  padding:10px;
+  margin:8px 0;
+  border-radius:8px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.remove{
+  color:red;
+  cursor:pointer;
+}
+
+/* PROGRESS */
+.progress{
+  height:6px;
+  background:#334155;
+  border-radius:10px;
+  margin-top:5px;
+  overflow:hidden;
+}
+
+.bar{
+  height:6px;
+  width:0%;
+  background:#22c55e;
+}
+
+/* BUTTON */
+.btn{
+  margin-top:10px;
+  padding:10px;
+  border:none;
+  border-radius:8px;
+  background:#22c55e;
+  cursor:pointer;
+  width:100%;
+  font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">📁 Online File Upload System</div>
+
+<div class="container">
+
+<div class="upload-box" onclick="document.getElementById('fileInput').click()">
+  <h3>📤 Click or Drop Files Here</h3>
+  <p>Upload images, PDFs, documents</p>
+
+  <input type="file" id="fileInput" multiple onchange="handleFiles(event)">
+
+  <div class="list" id="list"></div>
+
+  <button class="btn" onclick="uploadFiles()">Upload Files</button>
+</div>
+
+</div>
+
+<script>
+
+let filesArray = [];
+
+/* HANDLE FILES */
+function handleFiles(event){
+  let files = event.target.files;
+
+  for(let i=0;i<files.length;i++){
+    filesArray.push({
+      file: files[i],
+      progress:0
+    });
+  }
+
+  render();
+}
+
+/* RENDER FILE LIST */
+function render(){
+
+  let list = document.getElementById("list");
+  list.innerHTML = "";
+
+  filesArray.forEach((f,index)=>{
+
+    list.innerHTML += `
+      <div class="file">
+        <div>
+          📄 ${f.file.name} <br>
+          <small>${(f.file.size/1024).toFixed(1)} KB</small>
+
+          <div class="progress">
+            <div class="bar" id="bar${index}" style="width:${f.progress}%"></div>
+          </div>
+        </div>
+
+        <div class="remove" onclick="removeFile(${index})">✖</div>
+      </div>
+    `;
+  });
+}
+
+/* REMOVE FILE */
+function removeFile(i){
+  filesArray.splice(i,1);
+  render();
+}
+
+/* UPLOAD SIMULATION */
+function uploadFiles(){
+
+  if(filesArray.length === 0){
+    alert("No files selected");
+    return;
+  }
+
+  filesArray.forEach((f,index)=>{
+
+    let interval = setInterval(()=>{
+
+      if(f.progress >= 100){
+        clearInterval(interval);
+      } else {
+        f.progress += 10;
+        document.getElementById("bar"+index).style.width = f.progress + "%";
+      }
+
+    },200);
+
+  });
+
+}
+
+</script>
+
+</body>
+</html>

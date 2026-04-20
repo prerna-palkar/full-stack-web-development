@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pro Image Manager</title>
+
+<style>
+:root{
+  --bg:#0e0f1a;
+  --card:rgba(255,255,255,0.06);
+  --text:white;
+  --accent:#6a5cff;
+}
+
+.light{
+  --bg:#f4f4f4;
+  --card:white;
+  --text:black;
+  --accent:#4a3aff;
+}
+
+body{
+  margin:0;
+  font-family:Arial;
+  background:var(--bg);
+  color:var(--text);
+  transition:0.3s;
+}
+
+/* HEADER */
+header{
+  text-align:center;
+  padding:15px;
+  font-size:24px;
+  font-weight:bold;
+  background:linear-gradient(90deg,#ff4ecd,#6a5cff,#00ffb3);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+
+/* TOP BAR */
+.topbar{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:10px;
+  padding:10px;
+}
+
+input,select,button{
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  outline:none;
+}
+
+input,select{
+  background:var(--card);
+  color:var(--text);
+}
+
+button{
+  background:var(--accent);
+  color:white;
+  cursor:pointer;
+  transition:0.2s;
+}
+
+button:hover{ transform:scale(1.05); }
+
+/* DROP ZONE */
+.drop{
+  margin:10px auto;
+  padding:15px;
+  border:2px dashed var(--accent);
+  text-align:center;
+  width:90%;
+  border-radius:12px;
+}
+
+/* GRID */
+.grid{
+  column-count:4;
+  column-gap:15px;
+  padding:20px;
+}
+
+.card{
+  break-inside:avoid;
+  margin-bottom:15px;
+  background:var(--card);
+  border-radius:15px;
+  overflow:hidden;
+  transition:0.3s;
+}
+
+.card:hover{ transform:translateY(-5px); }
+
+.card img{
+  width:100%;
+  cursor:pointer;
+}
+
+.card-content{
+  padding:10px;
+}
+
+.title{
+  font-weight:bold;
+}
+
+.tags{
+  font-size:12px;
+  opacity:0.7;
+}
+
+/* ACTIONS */
+.actions{
+  display:flex;
+  justify-content:space-between;
+  margin-top:8px;
+}
+
+.btn{
+  cursor:pointer;
+  font-size:13px;
+}
+
+/* MODAL */
+.modal{
+  position:fixed;
+  top:0;left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.8);
+  display:none;
+  align-items:center;
+  justify-content:center;
+}
+
+.modal img{
+  max-width:80%;
+  max-height:80%;
+  border-radius:10px;
+}
+
+.close{
+  position:absolute;
+  top:20px;
+  right:20px;
+  font-size:25px;
+  cursor:pointer;
+}
+
+/* TOAST */
+.toast{
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  background:var(--accent);
+  padding:10px;
+  border-radius:10px;
+  display:none;
+}
+
+/* TAG FILTERS */
+.tagsbar{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  justify-content:center;
+  padding:10px;
+}
+
+.tagchip{
+  padding:5px 10px;
+  border-radius:20px;
+  background:var(--card);
+  cursor:pointer;
+}
+
+/* RESPONSIVE */
+@media(max-width:1000px){ .grid{column-count:3;} }
+@media(max-width:700px){ .grid{column-count:2;} }
+@media(max-width:500px){ .grid{column-count:1;} }
+</style>
+</head>
+
+<body>
+
+<header>📸 PRO IMAGE MANAGER</header>
+
+<div class="topbar">
+<input id="search" placeholder="Search images...">
+<select id="sort">
+  <option value="new">Newest</option>
+  <option value="likes">Most Liked</option>
+  <option value="name">Name</option>
+</select>
+<button onclick="toggleTheme()">🌙 Theme</button>
+</div>
+
+<div class="drop" id="drop">
+📤 Drag & Drop Images Here
+<input type="file" id="file" multiple>
+</div>
+
+<div class="tagsbar" id="tagsbar"></div>
+
+<div class="grid" id="grid"></div>
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+  <span class="close" onclick="closeModal()">❌</span>
+  <img id="modalImg">
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let images = JSON.parse(localStorage.getItem("imgs")) || [];
+let currentTag = "all";
+
+/* SAVE */
+function save(){
+  localStorage.setItem("imgs", JSON.stringify(images));
+}
+
+/* TOAST */
+function showToast(msg){
+  let t=document.getElementById("toast");
+  t.innerText=msg;
+  t.style.display="block";
+  setTimeout(()=>t.style.display="none",1500);
+}
+
+/* ADD IMAGE */
+function addImage(file){
+  let reader=new FileReader();
+  reader.onload=e=>{
+    images.push({
+      url:e.target.result,
+      name:file.name,
+      likes:0,
+      tags:["general"],
+      time:Date.now()
+    });
+    save();
+    render();
+    showToast("Image Added");
+  }
+  reader.readAsDataURL(file);
+}
+
+/* DROP */
+document.getElementById("drop").addEventListener("dragover",e=>e.preventDefault());
+document.getElementById("drop").addEventListener("drop",e=>{
+  e.preventDefault();
+  [...e.dataTransfer.files].forEach(addImage);
+});
+
+/* FILE INPUT */
+document.getElementById("file").addEventListener("change",e=>{
+  [...e.target.files].forEach(addImage);
+});
+
+/* LIKE */
+function like(i){
+  images[i].likes++;
+  save(); render();
+}
+
+/* DELETE */
+function del(i){
+  images.splice(i,1);
+  save(); render();
+}
+
+/* MODAL */
+function openModal(src){
+  document.getElementById("modal").style.display="flex";
+  document.getElementById("modalImg").src=src;
+}
+function closeModal(){
+  document.getElementById("modal").style.display="none";
+}
+
+/* TAG FILTER */
+function setTag(tag){
+  currentTag=tag;
+  render();
+}
+
+/* RENDER */
+function render(){
+  let grid=document.getElementById("grid");
+  grid.innerHTML="";
+
+  let data=[...images];
+
+  /* search */
+  let s=document.getElementById("search").value.toLowerCase();
+  if(s) data=data.filter(i=>i.name.toLowerCase().includes(s));
+
+  /* tag filter */
+  if(currentTag!="all")
+    data=data.filter(i=>i.tags.includes(currentTag));
+
+  /* sort */
+  let sort=document.getElementById("sort").value;
+  if(sort=="likes") data.sort((a,b)=>b.likes-a.likes);
+  if(sort=="name") data.sort((a,b)=>a.name.localeCompare(b.name));
+  if(sort=="new") data.sort((a,b)=>b.time-a.time);
+
+  grid.innerHTML=data.map((img,i)=>`
+    <div class="card">
+      <img src="${img.url}" onclick="openModal('${img.url}')">
+      <div class="card-content">
+        <div class="title">${img.name}</div>
+        <div class="tags">${img.tags.join(", ")}</div>
+
+        <div class="actions">
+          <span class="btn" onclick="like(${i})">❤️ ${img.likes}</span>
+          <span class="btn" onclick="del(${i})">🗑</span>
+          <a class="btn" download="${img.name}" href="${img.url}">⬇</a>
+        </div>
+      </div>
+    </div>
+  `).join("");
+
+  renderTags();
+}
+
+/* TAGS BAR */
+function renderTags(){
+  let bar=document.getElementById("tagsbar");
+  let allTags=new Set(["all"]);
+  images.forEach(i=>i.tags.forEach(t=>allTags.add(t)));
+
+  bar.innerHTML=[...allTags].map(t=>
+    `<div class="tagchip" onclick="setTag('${t}')">${t}</div>`
+  ).join("");
+}
+
+/* SEARCH + SORT */
+document.getElementById("search").oninput=render;
+document.getElementById("sort").onchange=render;
+
+/* THEME */
+function toggleTheme(){
+  document.body.classList.toggle("light");
+}
+
+/* INIT */
+render();
+</script>
+
+</body>
+</html>

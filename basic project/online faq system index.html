@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>FAQ Help Center</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family:Segoe UI;
+  background:#f5f6fa;
+  color:#111;
+}
+
+/* HEADER */
+.header{
+  background:#111827;
+  color:white;
+  padding:15px;
+  text-align:center;
+  font-size:18px;
+  font-weight:bold;
+}
+
+/* CONTAINER */
+.container{
+  max-width:800px;
+  margin:auto;
+  padding:20px;
+}
+
+/* INPUT BOX */
+.input-box{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:15px;
+}
+
+input, textarea{
+  width:100%;
+  padding:10px;
+  border:1px solid #ccc;
+  border-radius:8px;
+  outline:none;
+}
+
+textarea{
+  height:70px;
+  resize:none;
+}
+
+button{
+  padding:10px 15px;
+  border:none;
+  background:#2563eb;
+  color:white;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+/* SEARCH */
+.search{
+  margin-bottom:15px;
+}
+
+/* FAQ ITEM */
+.faq{
+  background:white;
+  margin-bottom:10px;
+  border-radius:10px;
+  border:1px solid #ddd;
+  overflow:hidden;
+}
+
+.question{
+  padding:12px;
+  font-weight:bold;
+  cursor:pointer;
+  display:flex;
+  justify-content:space-between;
+}
+
+.answer{
+  padding:12px;
+  display:none;
+  border-top:1px solid #eee;
+  background:#fafafa;
+}
+
+/* DELETE */
+.del{
+  color:red;
+  font-size:12px;
+  cursor:pointer;
+  margin-left:10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">❓ FAQ Help Center</div>
+
+<div class="container">
+
+<!-- ADD FAQ -->
+<div class="input-box">
+  <input id="q" placeholder="Enter question">
+  <textarea id="a" placeholder="Enter answer"></textarea>
+  <button onclick="addFAQ()">Add FAQ</button>
+</div>
+
+<!-- SEARCH -->
+<input class="search" id="search" placeholder="Search FAQ..." oninput="render()">
+
+<!-- FAQ LIST -->
+<div id="list"></div>
+
+</div>
+
+<script>
+let faqs = JSON.parse(localStorage.getItem("faqs")) || [];
+
+/* ADD FAQ */
+function addFAQ(){
+  let q = document.getElementById("q").value.trim();
+  let a = document.getElementById("a").value.trim();
+
+  if(!q || !a){
+    alert("Fill both question and answer");
+    return;
+  }
+
+  faqs.push({q,a,open:false});
+
+  save();
+  render();
+
+  document.getElementById("q").value="";
+  document.getElementById("a").value="";
+}
+
+/* TOGGLE */
+function toggle(i){
+  faqs[i].open = !faqs[i].open;
+  render();
+}
+
+/* DELETE */
+function removeFAQ(i){
+  faqs.splice(i,1);
+  save();
+  render();
+}
+
+/* SAVE */
+function save(){
+  localStorage.setItem("faqs", JSON.stringify(faqs));
+}
+
+/* RENDER */
+function render(){
+  let list = document.getElementById("list");
+  let search = document.getElementById("search").value.toLowerCase();
+
+  list.innerHTML = "";
+
+  faqs.forEach((f,i)=>{
+
+    if(!f.q.toLowerCase().includes(search) && !f.a.toLowerCase().includes(search)){
+      return;
+    }
+
+    list.innerHTML += `
+      <div class="faq">
+        <div class="question" onclick="toggle(${i})">
+          <span>${f.q}</span>
+          <span>
+            <span class="del" onclick="event.stopPropagation();removeFAQ(${i})">✖</span>
+          </span>
+        </div>
+
+        <div class="answer" style="display:${f.open ? 'block':'none'}">
+          ${f.a}
+        </div>
+      </div>
+    `;
+  });
+}
+
+/* INIT */
+render();
+</script>
+
+</body>
+</html>

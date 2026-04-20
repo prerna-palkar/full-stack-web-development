@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>LearnVault</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family:Georgia, serif;
+  background: linear-gradient(135deg,#f5e6ca,#e8dcc5,#1e293b);
+  color:#111;
+}
+
+/* HEADER */
+.header{
+  text-align:center;
+  padding:20px;
+  font-size:28px;
+  font-weight:bold;
+  color:#1e293b;
+}
+
+/* CONTAINER */
+.container{
+  max-width:900px;
+  margin:auto;
+  padding:20px;
+}
+
+/* CARD */
+.card{
+  background:rgba(255,255,255,0.7);
+  backdrop-filter:blur(10px);
+  border-radius:16px;
+  padding:15px;
+  margin-bottom:15px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.2);
+  transition:0.3s;
+}
+
+.card:hover{
+  transform:translateY(-5px);
+}
+
+/* INPUT */
+input,select{
+  width:100%;
+  padding:10px;
+  margin:6px 0;
+  border-radius:8px;
+  border:1px solid #ccc;
+}
+
+/* BUTTON */
+button{
+  padding:10px;
+  border:none;
+  border-radius:8px;
+  background:#1e293b;
+  color:white;
+  cursor:pointer;
+  margin-top:5px;
+}
+
+/* RESOURCE */
+.resource{
+  margin-top:10px;
+}
+
+/* TOAST */
+.toast{
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  background:#1e293b;
+  color:white;
+  padding:10px 15px;
+  border-radius:10px;
+  animation:fade 0.5s;
+}
+
+@keyframes fade{
+  from{opacity:0; transform:translateY(10px);}
+  to{opacity:1;}
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">📚 LearnVault</div>
+
+<div class="container">
+
+<!-- ADD RESOURCE -->
+<div class="card">
+  <h3>Add Resource</h3>
+
+  <input id="title" placeholder="Resource Title">
+  <input id="link" placeholder="Resource Link">
+  
+  <select id="category">
+    <option>Programming</option>
+    <option>Business</option>
+    <option>Design</option>
+    <option>AI/ML</option>
+  </select>
+
+  <button onclick="addResource()">Add Resource</button>
+</div>
+
+<!-- SEARCH -->
+<div class="card">
+  <input id="search" placeholder="Search resources..." oninput="render()">
+</div>
+
+<!-- LIST -->
+<div id="list"></div>
+
+</div>
+
+<script>
+
+let resources = [];
+
+/* TOAST */
+function showToast(msg){
+  let t=document.createElement("div");
+  t.className="toast";
+  t.innerText=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),2000);
+}
+
+/* ADD */
+function addResource(){
+
+  let title = document.getElementById("title").value;
+  let link = document.getElementById("link").value;
+  let category = document.getElementById("category").value;
+
+  if(!title || !link){
+    alert("Fill fields");
+    return;
+  }
+
+  resources.unshift({
+    title,link,category,saved:false
+  });
+
+  showToast("📚 Resource Added!");
+  render();
+}
+
+/* SAVE */
+function toggleSave(i){
+  resources[i].saved = !resources[i].saved;
+  showToast(resources[i].saved ? "⭐ Saved" : "Removed");
+  render();
+}
+
+/* RENDER */
+function render(){
+
+  let box = document.getElementById("list");
+  let search = document.getElementById("search").value.toLowerCase();
+
+  box.innerHTML="";
+
+  resources.forEach((r,i)=>{
+
+    if(!r.title.toLowerCase().includes(search)) return;
+
+    box.innerHTML += `
+      <div class="card resource">
+        <h3>${r.title}</h3>
+        <p>${r.category}</p>
+
+        <button onclick="window.open('${r.link}')">Open</button>
+        <button onclick="toggleSave(${i})">
+          ${r.saved ? "Saved ⭐" : "Save"}
+        </button>
+      </div>
+    `;
+  });
+}
+
+</script>
+
+</body>
+</html>

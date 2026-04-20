@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Feedback Intelligence Analyzer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family:"Segoe UI", sans-serif;
+  background:#f5f7fb;
+  color:#111;
+}
+
+/* TOP BAR */
+.topbar{
+  background:#111827;
+  color:white;
+  padding:15px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+/* LAYOUT */
+.container{
+  display:flex;
+  height:calc(100vh - 60px);
+}
+
+/* LEFT PANEL */
+.left{
+  width:320px;
+  background:white;
+  border-right:1px solid #ddd;
+  display:flex;
+  flex-direction:column;
+}
+
+/* INPUT */
+.input-area{
+  padding:15px;
+  border-bottom:1px solid #eee;
+}
+
+textarea{
+  width:100%;
+  height:80px;
+  padding:10px;
+  border:1px solid #ccc;
+  border-radius:8px;
+  resize:none;
+}
+
+select, button{
+  width:100%;
+  margin-top:8px;
+  padding:10px;
+  border-radius:8px;
+  border:none;
+}
+
+button{
+  background:#2563eb;
+  color:white;
+  cursor:pointer;
+}
+
+/* FEEDBACK LIST */
+.list{
+  overflow:auto;
+  flex:1;
+}
+
+.item{
+  padding:10px;
+  border-bottom:1px solid #eee;
+  cursor:pointer;
+}
+
+.item:hover{
+  background:#f3f4f6;
+}
+
+.small{
+  font-size:12px;
+  opacity:0.7;
+}
+
+/* RIGHT DASHBOARD */
+.right{
+  flex:1;
+  padding:20px;
+  overflow:auto;
+}
+
+/* CARDS */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:10px;
+}
+
+.card{
+  background:white;
+  padding:15px;
+  border-radius:10px;
+  border:1px solid #eee;
+}
+
+/* BADGES */
+.badge{
+  padding:3px 8px;
+  border-radius:20px;
+  font-size:12px;
+}
+
+.pos{background:#dcfce7;color:#166534;}
+.neg{background:#fee2e2;color:#991b1b;}
+.neu{background:#fef9c3;color:#854d0e;}
+</style>
+</head>
+
+<body>
+
+<div class="topbar">
+  <div>📊 Feedback Intelligence Analyzer</div>
+  <button onclick="exportData()">Export Data</button>
+</div>
+
+<div class="container">
+
+<!-- LEFT -->
+<div class="left">
+
+  <div class="input-area">
+    <textarea id="text" placeholder="Write feedback..."></textarea>
+
+    <select id="rating">
+      <option value="5">⭐⭐⭐⭐⭐</option>
+      <option value="4">⭐⭐⭐⭐</option>
+      <option value="3">⭐⭐⭐</option>
+      <option value="2">⭐⭐</option>
+      <option value="1">⭐</option>
+    </select>
+
+    <button onclick="addFeedback()">Submit Feedback</button>
+  </div>
+
+  <div class="list" id="list"></div>
+
+</div>
+
+<!-- RIGHT -->
+<div class="right">
+
+  <h2>📈 Analytics Dashboard</h2>
+
+  <div class="grid">
+
+    <div class="card">
+      Total Feedback<br>
+      <h2 id="total">0</h2>
+    </div>
+
+    <div class="card">
+      Positive 😊<br>
+      <h2 id="pos">0</h2>
+    </div>
+
+    <div class="card">
+      Neutral 😐<br>
+      <h2 id="neu">0</h2>
+    </div>
+
+    <div class="card">
+      Negative 😡<br>
+      <h2 id="neg">0</h2>
+    </div>
+
+  </div>
+
+</div>
+
+</div>
+
+<script>
+let data = JSON.parse(localStorage.getItem("feedbackAI")) || [];
+
+/* SENTIMENT ANALYSIS */
+function analyze(text){
+  text = text.toLowerCase();
+
+  let positiveWords = ["good","great","nice","excellent","love","amazing","best"];
+  let negativeWords = ["bad","worst","hate","poor","slow","problem","issue"];
+
+  let score = 0;
+
+  positiveWords.forEach(w=>{
+    if(text.includes(w)) score++;
+  });
+
+  negativeWords.forEach(w=>{
+    if(text.includes(w)) score--;
+  });
+
+  if(score > 0) return "positive";
+  if(score < 0) return "negative";
+  return "neutral";
+}
+
+/* ADD FEEDBACK */
+function addFeedback(){
+  let text = document.getElementById("text").value;
+  let rating = document.getElementById("rating").value;
+
+  if(text.trim() === "") return alert("Enter feedback");
+
+  let sentiment = analyze(text);
+
+  data.push({
+    text,
+    rating,
+    sentiment,
+    time:new Date().toLocaleString()
+  });
+
+  localStorage.setItem("feedbackAI", JSON.stringify(data));
+
+  document.getElementById("text").value = "";
+
+  render();
+}
+
+/* RENDER LIST */
+function render(){
+  let list = document.getElementById("list");
+  list.innerHTML = "";
+
+  let pos=0,neg=0,neu=0;
+
+  data.forEach((d,i)=>{
+
+    if(d.sentiment==="positive") pos++;
+    else if(d.sentiment==="negative") neg++;
+    else neu++;
+
+    let badge = "neu";
+    if(d.sentiment==="positive") badge="pos";
+    if(d.sentiment==="negative") badge="neg";
+
+    list.innerHTML += `
+      <div class="item">
+        <b>${d.text}</b><br>
+        <span class="small">${d.time}</span><br>
+        <span class="badge ${badge}">${d.sentiment}</span>
+      </div>
+    `;
+  });
+
+  document.getElementById("total").innerText = data.length;
+  document.getElementById("pos").innerText = pos;
+  document.getElementById("neg").innerText = neg;
+  document.getElementById("neu").innerText = neu;
+}
+
+/* EXPORT */
+function exportData(){
+  let blob = new Blob([JSON.stringify(data,null,2)], {type:"application/json"});
+  let a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "feedback_data.json";
+  a.click();
+}
+
+/* INIT */
+render();
+</script>
+
+</body>
+</html>

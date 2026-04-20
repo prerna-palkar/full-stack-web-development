@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareerHub – Find your next opportunity</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --pearl-white: #F8F6F2;
+            --soft-blue: #A7C7E7;
+            --muted-green: #A3B18A;
+            --light-grey: #E5E5E5;
+            --dark-text: #333333;
+            --text-light: #666666;
+            --text-lighter: #999999;
+            --accent-blue: #0A66C2;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f8f8 100%);
+            color: var(--dark-text);
+            min-height: 100vh;
+            cursor: none;
+        }
+
+        /* Custom Cursor */
+        .cursor {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            display: none;
+            box-shadow: 0 0 6px rgba(10, 102, 194, 0.3);
+        }
+
+        .cursor.active { display: block; }
+
+        .cursor-ring {
+            position: fixed;
+            width: 28px;
+            height: 28px;
+            border: 1.5px solid var(--accent-blue);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+            opacity: 0.25;
+            display: none;
+        }
+
+        .cursor-ring.active { display: block; }
+
+        /* Header */
+        header {
+            background: white;
+            border-bottom: 1px solid var(--light-grey);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .logo-icon { font-size: 1.8rem; }
+
+        .header-buttons { display: flex; gap: 12px; }
+
+        .btn-saved {
+            background: var(--light-grey);
+            color: var(--dark-text);
+            border: none;
+            padding: 9px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-saved:hover {
+            background: var(--soft-blue);
+            color: white;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Hero */
+        .hero {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .hero h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2.8rem;
+            color: var(--dark-text);
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .hero p {
+            font-size: 1rem;
+            color: var(--text-light);
+            font-weight: 300;
+        }
+
+        /* Search & Filter */
+        .search-filter {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            margin-bottom: 35px;
+        }
+
+        .search-filter-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 15px;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 11px 16px 11px 38px;
+            border: 1px solid var(--light-grey);
+            border-radius: 6px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 2px rgba(10, 102, 194, 0.1);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--soft-blue);
+        }
+
+        .filter-box {
+            position: relative;
+        }
+
+        .filter-box label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-lighter);
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .filter-box select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--light-grey);
+            border-radius: 6px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .filter-box select:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 2px rgba(10, 102, 194, 0.1);
+        }
+
+        /* Main Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 25px;
+        }
+
+        /* Jobs Grid */
+        .jobs-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .job-card {
+            background: white;
+            border: 1px solid var(--light-grey);
+            border-radius: 8px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .job-card:hover {
+            border-color: var(--accent-blue);
+            box-shadow: 0 4px 12px rgba(10, 102, 194, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .job-card.featured {
+            border-left: 4px solid var(--muted-green);
+            background: #fafafa;
+        }
+
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 12px;
+        }
+
+        .job-title-section h3 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--dark-text);
+            margin-bottom: 4px;
+        }
+
+        .job-company {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .job-type {
+            display: inline-block;
+            padding: 4px 10px;
+            background: var(--light-grey);
+            color: var(--dark-text);
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .job-type.fulltime {
+            background: rgba(10, 102, 194, 0.1);
+            color: var(--accent-blue);
+        }
+
+        .job-type.remote {
+            background: rgba(163, 177, 138, 0.1);
+            color: var(--muted-green);
+        }
+
+        .job-type.internship {
+            background: rgba(167, 199, 231, 0.1);
+            color: var(--soft-blue);
+        }
+
+        .job-meta {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .job-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+
+        .job-meta-item i {
+            color: var(--soft-blue);
+            width: 14px;
+        }
+
+        .job-description {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            line-height: 1.5;
+            margin-bottom: 14px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .job-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .job-salary {
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--accent-blue);
+        }
+
+        .job-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-save {
+            background: none;
+            border: none;
+            color: var(--text-lighter);
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-save:hover,
+        .btn-save.saved {
+            color: var(--muted-green);
+        }
+
+        .btn-apply {
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 9px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-apply:hover {
+            background: #0852a6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(10, 102, 194, 0.2);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            display: none;
+        }
+
+        .saved-jobs-card {
+            background: white;
+            border-radius: 8px;
+            border: 1px solid var(--light-grey);
+            padding: 16px;
+            position: sticky;
+            top: 80px;
+        }
+
+        .saved-jobs-card h3 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--dark-text);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .saved-jobs-list {
+            display: grid;
+            gap: 8px;
+        }
+
+        .saved-job-item {
+            padding: 10px;
+            background: var(--light-grey);
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: var(--dark-text);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .saved-job-item:hover {
+            background: var(--soft-blue);
+            color: white;
+        }
+
+        .saved-job-remove {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: inherit;
+            font-size: 0.8rem;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--light-grey);
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+        }
+
+        .modal-header h2 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--dark-text);
+        }
+
+        .modal-header p {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-lighter);
+            transition: color 0.3s ease;
+        }
+
+        .close-modal:hover {
+            color: var(--dark-text);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-section {
+            margin-bottom: 20px;
+        }
+
+        .modal-section h3 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--dark-text);
+            margin-bottom: 10px;
+        }
+
+        .modal-section p {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+
+        .modal-section ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .modal-section li {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            padding: 6px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .modal-section li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--accent-blue);
+        }
+
+        /* Application Form */
+        .app-form {
+            display: grid;
+            gap: 12px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--dark-text);
+            margin-bottom: 6px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            padding: 10px 12px;
+            border: 1px solid var(--light-grey);
+            border-radius: 6px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 2px rgba(10, 102, 194, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 10px 12px;
+            border: 1px dashed var(--soft-blue);
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(10, 102, 194, 0.05);
+            color: var(--accent-blue);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .file-input-label:hover {
+            background: rgba(10, 102, 194, 0.1);
+            border-color: var(--accent-blue);
+        }
+
+        /* Modal Footer */
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid var(--light-grey);
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .btn-submit {
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 11px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-submit:hover {
+            background: #0852a6;
+            transform: translateY(-2px);
+        }
+
+        .btn-cancel {
+            background: var(--light-grey);
+            color: var(--dark-text);
+            border: none;
+            padding: 11px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-cancel:hover {
+            background: #d0d0d0;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--muted-green);
+            color: white;
+            padding: 14px 20px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 10000;
+            animation: slideInUp 0.3s ease;
+        }
+
+        @keyframes slideInUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-light);
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            opacity: 0.3;
+            margin-bottom: 12px;
+        }
+
+        .empty-text {
+            font-size: 1rem;
+            font-weight: 300;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .search-filter-grid { grid-template-columns: 1fr 1fr; }
+            .main-grid { grid-template-columns: 1fr; }
+            .sidebar { display: block; margin-top: 25px; }
+            .saved-jobs-card { position: static; }
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 25px 15px; }
+            .hero h1 { font-size: 2rem; }
+            .search-filter-grid { grid-template-columns: 1fr; gap: 12px; }
+            .header-content { flex-direction: column; gap: 12px; text-align: center; }
+            .modal-content { max-width: 90vw; }
+        }
+
+        @media (max-width: 480px) {
+            .header-content { padding: 12px 15px; }
+            .logo { font-size: 1.1rem; }
+            .logo-icon { font-size: 1.4rem; }
+            .hero h1 { font-size: 1.5rem; }
+            .search-filter { padding: 16px; }
+            .job-meta { gap: 12px; font-size: 0.75rem; }
+            .job-footer { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .modal-header { padding: 16px; }
+            .modal-body { padding: 16px; }
+            .modal-footer { padding: 16px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="cursor"></div>
+    <div class="cursor-ring"></div>
+
+    <header>
+        <div class="header-content">
+            <div class="logo" onclick="location.reload()">
+                <i class="fas fa-briefcase"></i> CareerHub
+            </div>
+            <div class="header-buttons">
+                <button class="btn-saved" onclick="viewSaved()">
+                    <i class="fas fa-bookmark"></i> Saved (<span id="savedCount">0</span>)
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="hero">
+            <h1>Find your next opportunity</h1>
+            <p>Discover the perfect job that matches your skills and aspirations</p>
+        </div>
+
+        <div class="search-filter">
+            <div class="search-filter-grid">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Job title or company...">
+                </div>
+                <div class="filter-box">
+                    <label>Location</label>
+                    <select id="locationFilter">
+                        <option value="">All Cities</option>
+                        <option value="Mumbai">Mumbai</option>
+                        <option value="Bangalore">Bangalore</option>
+                        <option value="Pune">Pune</option>
+                        <option value="Delhi">Delhi</option>
+                        <option value="Hyderabad">Hyderabad</option>
+                        <option value="Kolkata">Kolkata</option>
+                        <option value="Chennai">Chennai</option>
+                        <option value="Nagpur">Nagpur</option>
+                        <option value="Chandigarh">Chandigarh</option>
+                        <option value="Jaipur">Jaipur</option>
+                        <option value="Ahmedabad">Ahmedabad</option>
+                    </select>
+                </div>
+                <div class="filter-box">
+                    <label>Job Type</label>
+                    <select id="typeFilter">
+                        <option value="">All Types</option>
+                        <option value="Full-time">Full-time</option>
+                        <option value="Remote">Remote</option>
+                        <option value="Internship">Internship</option>
+                    </select>
+                </div>
+                <div class="filter-box">
+                    <label>Salary Range</label>
+                    <select id="salaryFilter">
+                        <option value="">All Salaries</option>
+                        <option value="0-5">₹0–5 LPA</option>
+                        <option value="5-10">₹5–10 LPA</option>
+                        <option value="10-20">₹10–20 LPA</option>
+                        <option value="20+">₹20+ LPA</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <div>
+                <div class="jobs-grid" id="jobsGrid"></div>
+            </div>
+            <div class="sidebar">
+                <div class="saved-jobs-card">
+                    <h3><i class="fas fa-bookmark"></i> Saved Jobs</h3>
+                    <div class="saved-jobs-list" id="savedList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Job Details Modal -->
+    <div class="modal" id="jobModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h2 id="modalTitle"></h2>
+                    <p id="modalCompany"></p>
+                </div>
+                <button class="close-modal" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-section">
+                    <h3>Job Overview</h3>
+                    <div id="modalOverview"></div>
+                </div>
+                <div class="modal-section">
+                    <h3>Description</h3>
+                    <p id="modalDescription"></p>
+                </div>
+                <div class="modal-section">
+                    <h3>Required Skills</h3>
+                    <ul id="modalSkills"></ul>
+                </div>
+                <div class="modal-section" id="appSection" style="display: none;">
+                    <h3>Apply for this position</h3>
+                    <form class="app-form" id="appForm">
+                        <div class="form-group">
+                            <label>Full Name *</label>
+                            <input type="text" id="appName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email Address *</label>
+                            <input type="email" id="appEmail" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number</label>
+                            <input type="tel" id="appPhone">
+                        </div>
+                        <div class="form-group">
+                            <label>Cover Letter</label>
+                            <textarea id="appCover" placeholder="Tell us why you're interested in this role..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Resume/CV *</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" id="appResume" required>
+                                <label for="appResume" class="file-input-label">
+                                    <i class="fas fa-cloud-upload-alt"></i> Click to upload resume (PDF, DOC, DOCX)
+                                </label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal()">Close</button>
+                <button class="btn-submit" id="submitBtn" onclick="submitApplication()">Apply Now</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const jobs = [
+            {
+                id: 1,
+                title: "Senior Frontend Developer",
+                company: "TechVision India",
+                location: "Bangalore",
+                salary: "₹15–25 LPA",
+                salaryRange: "10-20",
+                type: "Full-time",
+                featured: true,
+                description: "Join our growing team and build engaging user interfaces using modern web technologies.",
+                fullDescription: "We're looking for a passionate Frontend Developer to join our engineering team. You'll work on scalable applications that serve millions of users across India.",
+                skills: ["React.js", "JavaScript ES6+", "HTML5/CSS3", "Redux", "REST APIs", "Git"]
+            },
+            {
+                id: 2,
+                title: "Data Analyst",
+                company: "InsightBiz Solutions",
+                location: "Mumbai",
+                salary: "₹8–12 LPA",
+                salaryRange: "5-10",
+                type: "Full-time",
+                featured: false,
+                description: "Analyze complex datasets and provide actionable insights to drive business decisions.",
+                fullDescription: "Transform data into strategic insights. Work with SQL, Python, and visualization tools to impact business strategy.",
+                skills: ["SQL", "Python", "Tableau", "Excel", "Data Visualization", "Statistical Analysis"]
+            },
+            {
+                id: 3,
+                title: "UI/UX Designer",
+                company: "DesignWorks Studio",
+                location: "Pune",
+                salary: "₹10–16 LPA",
+                salaryRange: "10-20",
+                type: "Full-time",
+                featured: true,
+                description: "Create beautiful and intuitive designs for mobile and web applications.",
+                fullDescription: "Design user experiences that delight millions. Collaborate with Product and Engineering teams.",
+                skills: ["Figma", "User Research", "Prototyping", "Adobe XD", "UI Design", "Wireframing"]
+            },
+            {
+                id: 4,
+                title: "Backend Engineer",
+                company: "CloudTech Systems",
+                location: "Hyderabad",
+                salary: "₹18–28 LPA",
+                salaryRange: "20+",
+                type: "Full-time",
+                featured: false,
+                description: "Build scalable backend systems handling millions of transactions daily.",
+                fullDescription: "Work with microservices, databases, and cloud infrastructure. Impact millions of users globally.",
+                skills: ["Node.js", "Python", "PostgreSQL", "AWS", "Docker", "Kubernetes"]
+            },
+            {
+                id: 5,
+                title: "Marketing Executive",
+                company: "BrandBoost Digital",
+                location: "Delhi",
+                salary: "₹6–10 LPA",
+                salaryRange: "5-10",
+                type: "Full-time",
+                featured: false,
+                description: "Drive marketing campaigns and grow brand awareness across digital channels.",
+                fullDescription: "Lead digital marketing initiatives, manage campaigns, and analyze performance metrics.",
+                skills: ["Digital Marketing", "SEO", "Content Strategy", "Google Analytics", "Social Media", "Email Marketing"]
+            },
+            {
+                id: 6,
+                title: "HR Intern",
+                company: "PeopleFirst Consulting",
+                location: "Bangalore",
+                salary: "₹3–5 LPA",
+                salaryRange: "0-5",
+                type: "Internship",
+                featured: false,
+                description: "Support HR operations and gain valuable experience in recruitment and talent management.",
+                fullDescription: "Start your HR career with mentorship from experienced professionals. Learn recruitment, onboarding, and workforce planning.",
+                skills: ["Communication", "MS Office", "Recruitment Support", "Data Entry", "HR Basics"]
+            },
+            {
+                id: 7,
+                title: "Software Developer",
+                company: "InfoSys Tech",
+                location: "Remote",
+                salary: "₹12–18 LPA",
+                salaryRange: "10-20",
+                type: "Remote",
+                featured: false,
+                description: "Develop full-stack applications with modern technologies from the comfort of your home.",
+                fullDescription: "Work remotely on challenging projects. We value innovation, collaboration, and continuous learning.",
+                skills: ["Java", "Spring Boot", "React", "MongoDB", "REST APIs", "Agile"]
+            },
+            {
+                id: 8,
+                title: "Business Analyst",
+                company: "ConsultPro Solutions",
+                location: "Mumbai",
+                salary: "₹9–14 LPA",
+                salaryRange: "5-10",
+                type: "Full-time",
+                featured: false,
+                description: "Translate business requirements into technical solutions and drive digital transformation.",
+                fullDescription: "Bridge the gap between business and technology teams. Gather requirements, create specifications, and ensure successful implementations.",
+                skills: ["Requirements Analysis", "Business Process", "Documentation", "SQL", "Data Analysis", "Communication"]
+            },
+            {
+                id: 9,
+                title: "DevOps Engineer",
+                company: "CloudNetic Solutions",
+                location: "Hyderabad",
+                salary: "₹16–24 LPA",
+                salaryRange: "10-20",
+                type: "Full-time",
+                featured: true,
+                description: "Build and manage CI/CD pipelines and cloud infrastructure for high-performance applications.",
+                fullDescription: "Manage deployment pipelines, monitor systems, and ensure 99.9% uptime for mission-critical applications.",
+                skills: ["Docker", "Kubernetes", "Jenkins", "AWS/GCP", "Linux", "Terraform"]
+            },
+            {
+                id: 10,
+                title: "Content Writer",
+                company: "WordSmith Media",
+                location: "Delhi",
+                salary: "₹4–7 LPA",
+                salaryRange: "0-5",
+                type: "Part-time",
+                featured: false,
+                description: "Create engaging technical and marketing content for diverse audiences.",
+                fullDescription: "Write blog posts, whitepapers, and marketing copy. Build your portfolio while working with top brands.",
+                skills: ["Content Writing", "SEO Writing", "Copywriting", "Research", "Editing", "CMS"]
+            },
+            {
+                id: 11,
+                title: "Mobile App Developer",
+                company: "AppInnovate Labs",
+                location: "Pune",
+                salary: "₹13–20 LPA",
+                salaryRange: "10-20",
+                type: "Full-time",
+                featured: false,
+                description: "Develop high-performance Android and iOS applications for a global user base.",
+                fullDescription: "Create smooth, responsive mobile experiences. Work with latest frameworks and best practices.",
+                skills: ["React Native", "Flutter", "Swift", "Kotlin", "API Integration", "Mobile Design"]
+            },
+            {
+                id: 12,
+                title: "Quality Assurance Engineer",
+                company: "QualityFirst Testing",
+                location: "Nagpur",
+                salary: "₹7–11 LPA",
+                salaryRange: "5-10",
+                type: "Full-time",
+                featured: false,
+                description: "Ensure software quality through comprehensive testing and automation.",
+                fullDescription: "Design test cases, perform manual and automated testing, and report bugs for multiple projects.",
+                skills: ["Test Automation", "Selenium", "QA Tools", "Manual Testing", "Bug Reporting", "SQL"]
+            },
+            {
+                id: 13,
+                title: "Product Manager",
+                company: "InnovateTech Ventures",
+                location: "Bangalore",
+                salary: "₹20–30 LPA",
+                salaryRange: "20+",
+                type: "Full-time",
+                featured: true,
+                description: "Lead product strategy and drive business growth through innovative solutions.",
+                fullDescription: "Own the product roadmap, collaborate cross-functionally, and deliver features that delight users.",
+                skills: ["Product Strategy", "Analytics", "User Research", "Roadmapping", "Stakeholder Management"]
+            },
+            {
+                id: 14,
+                title: "Java Developer Intern",
+                company: "CodeMasters Academy",
+                location: "Pune",
+                salary: "₹2–4 LPA",
+                salaryRange: "0-5",
+                type: "Internship",
+                featured: false,
+                description: "Learn enterprise Java development while working on real-world projects.",
+                fullDescription: "Perfect for recent graduates. Mentorship, hands-on coding, and career guidance included.",
+                skills: ["Java", "OOP", "JDBC", "Spring Basics", "MySQL", "Problem Solving"]
+            },
+            {
+                id: 15,
+                title: "Cloud Architect",
+                company: "SkyServe Cloud",
+                location: "Remote",
+                salary: "₹25–35 LPA",
+                salaryRange: "20+",
+                type: "Remote",
+                featured: false,
+                description: "Design and implement scalable cloud solutions for enterprise clients.",
+                fullDescription: "Lead cloud infrastructure projects, ensure security, and optimize costs across multiple clouds.",
+                skills: ["AWS", "Azure", "Cloud Architecture", "Security", "Cost Optimization", "Terraform"]
+            }
+        ];
+
+        let savedJobs = [];
+        let currentJob = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initCursor();
+            loadSaved();
+            renderJobs(jobs);
+            setupSearch();
+            updateSavedCount();
+        });
+
+        function renderJobs(jobsToRender) {
+            const grid = document.getElementById('jobsGrid');
+            
+            if (jobsToRender.length === 0) {
+                grid.innerHTML = '<div class="empty-state" style="grid-column: 1"><div class="empty-icon">💼</div><p class="empty-text">No jobs found matching your criteria.</p></div>';
+                return;
+            }
+
+            grid.innerHTML = jobsToRender.map(job => `
+                <div class="job-card ${job.featured ? 'featured' : ''}">
+                    <div class="job-header">
+                        <div class="job-title-section">
+                            <h3>${job.title}</h3>
+                            <div class="job-company">${job.company}</div>
+                        </div>
+                        <span class="job-type ${job.type.toLowerCase().replace('-', '')}">${job.type}</span>
+                    </div>
+                    <div class="job-meta">
+                        <div class="job-meta-item"><i class="fas fa-map-marker-alt"></i> ${job.location}</div>
+                        <div class="job-meta-item"><i class="fas fa-rupee-sign"></i> ${job.salary}</div>
+                    </div>
+                    <p class="job-description">${job.description}</p>
+                    <div class="job-footer">
+                        <div class="job-salary"></div>
+                        <div class="job-actions">
+                            <button class="btn-save ${isSaved(job.id) ? 'saved' : ''}" onclick="toggleSave(event, ${job.id})" title="Save job">
+                                <i class="fas fa-bookmark"></i>
+                            </button>
+                            <button class="btn-apply" onclick="openJobModal(${job.id})">Apply Now</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openJobModal(jobId) {
+            currentJob = jobs.find(j => j.id === jobId);
+            
+            document.getElementById('modalTitle').textContent = currentJob.title;
+            document.getElementById('modalCompany').textContent = currentJob.company;
+            
+            document.getElementById('modalOverview').innerHTML = `
+                <p><strong>Location:</strong> ${currentJob.location}</p>
+                <p><strong>Salary:</strong> ${currentJob.salary}</p>
+                <p><strong>Type:</strong> ${currentJob.type}</p>
+            `;
+            
+            document.getElementById('modalDescription').textContent = currentJob.fullDescription;
+            
+            document.getElementById('modalSkills').innerHTML = currentJob.skills
+                .map(skill => `<li>${skill}</li>`).join('');
+            
+            document.getElementById('appSection').style.display = 'block';
+            document.getElementById('appForm').reset();
+            
+            document.getElementById('jobModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('jobModal').classList.remove('active');
+            currentJob = null;
+        }
+
+        function submitApplication() {
+            const name = document.getElementById('appName').value;
+            const email = document.getElementById('appEmail').value;
+            const resume = document.getElementById('appResume').value;
+
+            if (!name || !email || !resume) {
+                showToast('Please fill in all required fields');
+                return;
+            }
+
+            if (isSaved(currentJob.id)) {
+                showToast(`Already applied to "${currentJob.title}"`);
+                return;
+            }
+
+            addApplied(currentJob.id);
+            showToast(`Applied to "${currentJob.title}" successfully!`);
+            closeModal();
+        }
+
+        function toggleSave(e, jobId) {
+            e.stopPropagation();
+            const idx = savedJobs.findIndex(j => j.id === jobId);
+            const job = jobs.find(j => j.id === jobId);
+
+            if (idx > -1) {
+                savedJobs.splice(idx, 1);
+                showToast('Removed from saved');
+            } else {
+                savedJobs.push(job);
+                showToast('Saved job');
+            }
+
+            saveSaved();
+            renderJobs(filterJobs());
+            updateSavedCount();
+            updateSavedList();
+        }
+
+        function setupSearch() {
+            document.getElementById('searchInput').addEventListener('input', () => renderJobs(filterJobs()));
+            document.getElementById('locationFilter').addEventListener('change', () => renderJobs(filterJobs()));
+            document.getElementById('typeFilter').addEventListener('change', () => renderJobs(filterJobs()));
+            document.getElementById('salaryFilter').addEventListener('change', () => renderJobs(filterJobs()));
+        }
+
+        function filterJobs() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const location = document.getElementById('locationFilter').value;
+            const type = document.getElementById('typeFilter').value;
+            const salaryRange = document.getElementById('salaryFilter').value;
+
+            return jobs.filter(job => {
+                const matchSearch = job.title.toLowerCase().includes(search) || job.company.toLowerCase().includes(search);
+                const matchLocation = !location || job.location === location;
+                const matchType = !type || job.type === type;
+                const matchSalary = !salaryRange || job.salaryRange === salaryRange;
+                return matchSearch && matchLocation && matchType && matchSalary;
+            });
+        }
+
+        function viewSaved() {
+            if (savedJobs.length === 0) {
+                showToast('No saved jobs yet');
+                return;
+            }
+            renderJobs(savedJobs);
+        }
+
+        function isSaved(jobId) {
+            return savedJobs.some(j => j.id === jobId);
+        }
+
+        function addApplied(jobId) {
+            if (!isSaved(jobId)) {
+                const job = jobs.find(j => j.id === jobId);
+                savedJobs.push(job);
+                saveSaved();
+                updateSavedCount();
+            }
+        }
+
+        function updateSavedList() {
+            const list = document.getElementById('savedList');
+            if (savedJobs.length === 0) {
+                list.innerHTML = '<div style="font-size: 0.8rem; color: var(--text-lighter);">No saved jobs</div>';
+                return;
+            }
+            list.innerHTML = savedJobs.map(job => `
+                <div class="saved-job-item">
+                    <span onclick="openJobModal(${job.id})" style="flex: 1; text-align: left;">${job.title}</span>
+                    <button class="saved-job-remove" onclick="toggleSave(event, ${job.id})">✕</button>
+                </div>
+            `).join('');
+        }
+
+        function updateSavedCount() {
+            document.getElementById('savedCount').textContent = savedJobs.length;
+        }
+
+        function saveSaved() {
+            localStorage.setItem('careerHubSaved', JSON.stringify(savedJobs.map(j => j.id)));
+        }
+
+        function loadSaved() {
+            const stored = localStorage.getItem('careerHubSaved');
+            if (stored) {
+                const ids = JSON.parse(stored);
+                savedJobs = jobs.filter(j => ids.includes(j.id));
+            }
+            updateSavedList();
+        }
+
+        function showToast(msg) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function initCursor() {
+            const cursor = document.querySelector('.cursor');
+            const ring = document.querySelector('.cursor-ring');
+            let ringX = 0, ringY = 0;
+
+            document.addEventListener('mousemove', (e) => {
+                cursor.style.left = (e.clientX - 4) + 'px';
+                cursor.style.top = (e.clientY - 4) + 'px';
+                
+                ringX += (e.clientX - ringX) * 0.25;
+                ringY += (e.clientY - ringY) * 0.25;
+                ring.style.left = (ringX - 14) + 'px';
+                ring.style.top = (ringY - 14) + 'px';
+                
+                cursor.classList.add('active');
+                ring.classList.add('active');
+            });
+
+            document.addEventListener('mouseleave', () => {
+                cursor.classList.remove('active');
+                ring.classList.remove('active');
+            });
+
+            document.addEventListener('mouseover', (e) => {
+                if (e.target.closest('button, a, input, select')) {
+                    cursor.style.width = '12px';
+                    cursor.style.height = '12px';
+                    ring.style.width = '32px';
+                    ring.style.height = '32px';
+                    ring.style.opacity = '0.6';
+                }
+            });
+
+            document.addEventListener('mouseout', (e) => {
+                if (e.target.closest('button, a, input, select')) {
+                    cursor.style.width = '8px';
+                    cursor.style.height = '8px';
+                    ring.style.width = '28px';
+                    ring.style.height = '28px';
+                    ring.style.opacity = '0.25';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

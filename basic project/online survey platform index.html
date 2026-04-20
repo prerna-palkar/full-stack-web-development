@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SurveyPro</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg,#0f172a,#1e293b,#020617);
+  color:white;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+
+/* MAIN CARD */
+.container{
+  width:420px;
+  backdrop-filter: blur(15px);
+  background: rgba(255,255,255,0.05);
+  border-radius:16px;
+  padding:25px;
+  box-shadow:0 20px 40px rgba(0,0,0,0.5);
+}
+
+/* TITLE */
+.title{
+  font-size:20px;
+  font-weight:bold;
+  margin-bottom:15px;
+}
+
+/* INPUT */
+input{
+  width:100%;
+  padding:12px;
+  margin:6px 0;
+  border-radius:10px;
+  border:none;
+  outline:none;
+  background:#111827;
+  color:white;
+}
+
+/* BUTTON */
+button{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  background: linear-gradient(135deg,#22c55e,#16a34a);
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+  margin-top:10px;
+  transition:0.3s;
+}
+
+button:hover{
+  transform:scale(1.03);
+}
+
+/* OPTION */
+.option{
+  padding:10px;
+  margin:6px 0;
+  border-radius:10px;
+  background:#111827;
+  cursor:pointer;
+  transition:0.2s;
+}
+
+.option:hover{
+  background:#1f2937;
+}
+
+/* RESULT BAR */
+.bar{
+  height:8px;
+  background:#1f2937;
+  border-radius:10px;
+  margin-top:5px;
+  overflow:hidden;
+}
+
+.fill{
+  height:8px;
+  background: linear-gradient(90deg,#38bdf8,#6366f1);
+  transition:0.5s;
+}
+
+/* FADE */
+.fade{
+  animation:fade 0.4s ease;
+}
+
+@keyframes fade{
+  from{opacity:0; transform:translateY(10px);}
+  to{opacity:1;}
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div id="createBox" class="fade">
+
+  <div class="title">✨ Create Survey</div>
+
+  <input id="question" placeholder="Ask your question...">
+
+  <input id="o1" placeholder="Option 1">
+  <input id="o2" placeholder="Option 2">
+  <input id="o3" placeholder="Option 3">
+
+  <button onclick="create()">Create Survey</button>
+
+</div>
+
+<div id="surveyBox"></div>
+<div id="resultBox"></div>
+
+</div>
+
+<script>
+
+let survey = null;
+
+/* CREATE */
+function create(){
+
+  let q = document.getElementById("question").value;
+  let o1 = document.getElementById("o1").value;
+  let o2 = document.getElementById("o2").value;
+  let o3 = document.getElementById("o3").value;
+
+  if(!q || !o1 || !o2){
+    alert("Fill required fields");
+    return;
+  }
+
+  survey = {
+    question:q,
+    options:[
+      {text:o1,votes:0},
+      {text:o2,votes:0},
+      {text:o3 || "",votes:0}
+    ]
+  };
+
+  showSurvey();
+}
+
+/* SHOW SURVEY */
+function showSurvey(){
+
+  document.getElementById("createBox").style.display="none";
+
+  document.getElementById("surveyBox").innerHTML = `
+    <div class="fade">
+      <div class="title">${survey.question}</div>
+
+      ${survey.options.map((o,i)=> o.text ? `
+        <div class="option" onclick="vote(${i})">
+          ${o.text}
+        </div>
+      `:"").join("")}
+    </div>
+  `;
+}
+
+/* VOTE */
+function vote(i){
+  survey.options[i].votes++;
+  showResult();
+}
+
+/* RESULT */
+function showResult(){
+
+  let total = survey.options.reduce((s,o)=>s+o.votes,0);
+
+  document.getElementById("surveyBox").innerHTML="";
+
+  document.getElementById("resultBox").innerHTML = `
+    <div class="fade">
+      <div class="title">📊 Results</div>
+
+      ${survey.options.map(o=>{
+        if(!o.text) return "";
+
+        let p = total ? (o.votes/total)*100 : 0;
+
+        return `
+          <p>${o.text} (${o.votes})</p>
+          <div class="bar">
+            <div class="fill" style="width:${p}%"></div>
+          </div>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+</script>
+
+</body>
+</html>

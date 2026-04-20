@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Newsletter Subscription</title>
+
+<style>
+body {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  background: #f7f9fc;
+  color: #333;
+}
+
+.container {
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
+  text-align: center;
+}
+
+.hero {
+  margin-top: 50px;
+}
+
+h1 {
+  margin-bottom: 10px;
+}
+
+p {
+  color: #666;
+}
+
+.card {
+  background: #fff;
+  padding: 20px;
+  margin-top: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+input {
+  padding: 12px;
+  margin: 10px 0;
+  width: 90%;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+input:focus {
+  border-color: #5b7cff;
+  outline: none;
+}
+
+button {
+  padding: 12px 20px;
+  background: #5b7cff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #405eea;
+}
+
+.error {
+  color: red;
+  font-size: 14px;
+}
+
+.success {
+  color: green;
+  margin-top: 10px;
+}
+
+.list {
+  margin-top: 30px;
+  text-align: left;
+}
+
+.subscriber {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.count {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="hero">
+    <h1>Stay Updated</h1>
+    <p>Subscribe to our newsletter for the latest updates</p>
+  </div>
+
+  <div class="card">
+    <input type="text" id="name" placeholder="Full Name (optional)">
+    <input type="email" id="email" placeholder="Enter your email">
+    <div id="error" class="error"></div>
+    <button onclick="subscribe()">Subscribe</button>
+    <div id="success" class="success"></div>
+  </div>
+
+  <div class="card list">
+    <div class="count" id="count"></div>
+    <div id="subscribers"></div>
+  </div>
+
+</div>
+
+<script>
+function getSubscribers(){
+  return JSON.parse(localStorage.getItem("subs")) || [];
+}
+
+function saveSubscribers(data){
+  localStorage.setItem("subs", JSON.stringify(data));
+}
+
+function validateEmail(email){
+  return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email);
+}
+
+function subscribe(){
+  let name = document.getElementById("name").value;
+  let email = document.getElementById("email").value;
+  let error = document.getElementById("error");
+  let success = document.getElementById("success");
+
+  error.innerText = "";
+  success.innerText = "";
+
+  if(!email){
+    error.innerText = "Email is required";
+    return;
+  }
+
+  if(!validateEmail(email)){
+    error.innerText = "Invalid email format";
+    return;
+  }
+
+  let subs = getSubscribers();
+
+  if(subs.some(s => s.email === email)){
+    error.innerText = "Already subscribed";
+    return;
+  }
+
+  subs.push({name, email});
+  saveSubscribers(subs);
+
+  success.innerText = "You have successfully subscribed!";
+  document.getElementById("name").value = "";
+  document.getElementById("email").value = "";
+
+  render();
+}
+
+function unsubscribe(index){
+  let subs = getSubscribers();
+  subs.splice(index, 1);
+  saveSubscribers(subs);
+  render();
+}
+
+function render(){
+  let subs = getSubscribers();
+  let container = document.getElementById("subscribers");
+  let count = document.getElementById("count");
+
+  container.innerHTML = "";
+  count.innerText = "Total Subscribers: " + subs.length;
+
+  subs.forEach((s, i) => {
+    container.innerHTML += `
+      <div class="subscriber">
+        <span>${s.name ? s.name + " - " : ""}${s.email}</span>
+        <button onclick="unsubscribe(${i})">Unsubscribe</button>
+      </div>
+    `;
+  });
+}
+
+render();
+</script>
+
+</body>
+</html>

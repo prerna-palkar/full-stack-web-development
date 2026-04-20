@@ -1,0 +1,1492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback Collection System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #6366f1;
+            --primary-light: #818cf8;
+            --primary-dark: #4f46e5;
+            --accent-color: #ec4899;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body.dark-mode {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --border-color: #334155;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, var(--bg-color) 0%, #f1f5f9 100%);
+            color: var(--text-primary);
+            transition: var(--transition);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header Styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header-title {
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .toggle-btn, .theme-toggle {
+            padding: 10px 20px;
+            border: none;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .toggle-btn:hover, .theme-toggle:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .toggle-btn.active {
+            background: var(--accent-color);
+        }
+
+        .theme-toggle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        /* Statistics Dashboard */
+        .stats-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+            opacity: 0;
+            animation: slideUp 0.6s ease-out forwards;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-4px);
+            border-color: var(--primary-color);
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .rating-distribution {
+            margin-top: 15px;
+        }
+
+        .distribution-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+
+        .bar-label {
+            width: 25px;
+            color: var(--text-secondary);
+        }
+
+        .bar-container {
+            flex: 1;
+            height: 8px;
+            background: var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            border-radius: 4px;
+            transition: var(--transition);
+        }
+
+        .bar-count {
+            width: 30px;
+            text-align: right;
+            color: var(--text-secondary);
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .nav-tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .nav-tab:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-tab.active {
+            color: var(--primary-color);
+        }
+
+        .nav-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--primary-color);
+            border-radius: 2px;
+        }
+
+        /* Main Content */
+        .content-section {
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Form Styles */
+        .form-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: var(--shadow-md);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            background: var(--card-bg);
+            color: var(--text-primary);
+            transition: var(--transition);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .char-counter {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 6px;
+            text-align: right;
+        }
+
+        .char-counter.warning {
+            color: var(--warning-color);
+        }
+
+        .char-counter.error {
+            color: var(--error-color);
+        }
+
+        .error-message {
+            color: var(--error-color);
+            font-size: 12px;
+            margin-top: 6px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .form-group input.error,
+        .form-group textarea.error {
+            border-color: var(--error-color);
+        }
+
+        /* Star Rating */
+        .star-rating {
+            display: flex;
+            gap: 12px;
+            font-size: 32px;
+            margin: 16px 0;
+        }
+
+        .star {
+            cursor: pointer;
+            transition: var(--transition);
+            filter: grayscale(100%);
+            opacity: 0.5;
+        }
+
+        .star:hover,
+        .star.active {
+            filter: grayscale(0%);
+            opacity: 1;
+            transform: scale(1.2);
+        }
+
+        .rating-emoji {
+            font-size: 24px;
+            margin-left: 20px;
+            display: none;
+        }
+
+        .rating-emoji.show {
+            display: inline-block;
+            animation: popIn 0.3s ease-out;
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .rating-suggestion {
+            background: rgba(99, 102, 241, 0.1);
+            border-left: 3px solid var(--primary-color);
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: var(--primary-color);
+            margin-top: 10px;
+            display: none;
+        }
+
+        .rating-suggestion.show {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Toggle Switch */
+        .toggle-switch-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 28px;
+            background: var(--border-color);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .toggle-switch.active {
+            background: var(--success-color);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+
+        .toggle-switch.active::after {
+            left: 24px;
+        }
+
+        .toggle-label {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .submit-btn.loading {
+            pointer-events: none;
+            opacity: 0.8;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            background: var(--success-color);
+            color: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow-lg);
+            font-weight: 600;
+            animation: slideInUp 0.3s ease-out;
+            z-index: 1000;
+        }
+
+        .toast.error {
+            background: var(--error-color);
+        }
+
+        .toast.warning {
+            background: var(--warning-color);
+            color: var(--text-primary);
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Feedback List Styles */
+        .feedback-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .feedback-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .feedback-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-4px);
+            border-color: var(--primary-color);
+        }
+
+        .feedback-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 12px;
+        }
+
+        .feedback-name {
+            font-weight: 700;
+            color: var(--text-primary);
+            font-size: 16px;
+        }
+
+        .feedback-date {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .feedback-meta {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary-color);
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .rating-stars {
+            display: flex;
+            gap: 4px;
+            color: #fbbf24;
+            font-size: 16px;
+        }
+
+        .feedback-message {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .feedback-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .delete-btn {
+            padding: 8px 16px;
+            background: var(--error-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .delete-btn:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        /* Filter Section */
+        .filter-section {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .filter-label {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .filter-input,
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+            background: var(--bg-color);
+            color: var(--text-primary);
+            transition: var(--transition);
+        }
+
+        .filter-input:focus,
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .sort-btn {
+            padding: 8px 16px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .sort-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .empty-state-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+
+        .empty-state-text {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* Success Message */
+        .success-message {
+            display: none;
+            background: var(--card-bg);
+            border: 1px solid var(--success-color);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .success-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .success-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--success-color);
+            margin-bottom: 10px;
+        }
+
+        .success-text {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .header-title {
+                font-size: 24px;
+            }
+
+            .form-container {
+                padding: 24px;
+            }
+
+            .stats-dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-tabs {
+                gap: 5px;
+            }
+
+            .nav-tab {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+
+            .filter-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-group {
+                flex-direction: column;
+            }
+
+            .filter-input,
+            .filter-select {
+                width: 100%;
+            }
+
+            .feedback-list {
+                grid-template-columns: 1fr;
+            }
+
+            .star-rating {
+                gap: 8px;
+                font-size: 28px;
+            }
+        }
+
+        /* Utility Classes */
+        .hidden {
+            display: none;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+    </style>
+
+    <script>
+        // Data Management System for Feedback Collection
+        const FeedbackSystem = {
+            DATA_KEY: 'feedbackData',
+            SORT_KEY: 'feedbackSort',
+            
+            // Initialize all event listeners and load data
+            init() {
+                this.setupEventListeners();
+                this.loadFeedback();
+                this.applyTheme();
+                this.updateStatistics();
+            },
+
+            // Setup all event listeners for form and UI interactions
+            setupEventListeners() {
+                // Tab Navigation
+                document.querySelectorAll('.nav-tab').forEach(tab => {
+                    tab.addEventListener('click', (e) => this.switchTab(e.target));
+                });
+
+                // Form Events
+                const form = document.getElementById('feedbackForm');
+                if (form) {
+                    form.addEventListener('submit', (e) => this.handleSubmit(e));
+                }
+
+                // Rating Stars - click to set rating
+                document.querySelectorAll('.star').forEach(star => {
+                    star.addEventListener('click', (e) => this.setRating(e.target));
+                    star.addEventListener('mouseover', (e) => this.hoverRating(e.target));
+                });
+
+                // Reset hover rating when mouse leaves
+                const ratingContainer = document.getElementById('ratingContainer');
+                if (ratingContainer) {
+                    ratingContainer.addEventListener('mouseout', () => this.resetRatingHover());
+                }
+
+                // Character Counter for message field
+                const messageField = document.getElementById('message');
+                if (messageField) {
+                    messageField.addEventListener('input', (e) => this.updateCharCounter(e.target));
+                }
+
+                // Email validation on blur
+                const emailField = document.getElementById('email');
+                if (emailField) {
+                    emailField.addEventListener('blur', () => this.validateEmail());
+                }
+
+                // Toggle Recommendation switch
+                const recommendToggle = document.getElementById('recommendToggle');
+                if (recommendToggle) {
+                    recommendToggle.addEventListener('click', () => this.toggleRecommend());
+                }
+
+                // Theme Toggle button
+                document.getElementById('themeToggle').addEventListener('click', () => this.toggleTheme());
+
+                // Filter and Search events
+                document.getElementById('filterRating').addEventListener('change', () => this.applyFilters());
+                document.getElementById('filterCategory').addEventListener('change', () => this.applyFilters());
+                document.getElementById('searchInput').addEventListener('input', () => this.applyFilters());
+
+                // Sort Buttons
+                document.getElementById('sortLatest').addEventListener('click', () => this.sortFeedback('latest'));
+                document.getElementById('sortRating').addEventListener('click', () => this.sortFeedback('rating'));
+            },
+
+            // Switch between tabs (Submit / View)
+            switchTab(tabElement) {
+                // Update active tab styling
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                tabElement.classList.add('active');
+
+                // Update content visibility
+                const tabName = tabElement.dataset.tab;
+                document.querySelectorAll('.content-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                document.getElementById(`${tabName}Tab`).classList.add('active');
+            },
+
+            // Set rating when user clicks a star
+            setRating(star) {
+                const rating = parseInt(star.dataset.value);
+                localStorage.setItem('selectedRating', rating);
+                this.updateStarDisplay(rating);
+                this.showRatingEmoji(rating);
+                this.showRatingSuggestion(rating);
+            },
+
+            // Update star appearance on hover
+            hoverRating(star) {
+                const rating = parseInt(star.dataset.value);
+                const stars = document.querySelectorAll('.star');
+                stars.forEach((s, index) => {
+                    if (index < rating) {
+                        s.style.opacity = '1';
+                        s.style.filter = 'grayscale(0%)';
+                    } else {
+                        s.style.opacity = '0.5';
+                        s.style.filter = 'grayscale(100%)';
+                    }
+                });
+            },
+
+            // Reset stars to selected rating when mouse leaves
+            resetRatingHover() {
+                const selectedRating = localStorage.getItem('selectedRating') || 0;
+                this.updateStarDisplay(parseInt(selectedRating));
+            },
+
+            // Update visual display of stars based on rating
+            updateStarDisplay(rating) {
+                const stars = document.querySelectorAll('.star');
+                stars.forEach((star, index) => {
+                    if (index < rating) {
+                        star.classList.add('active');
+                    } else {
+                        star.classList.remove('active');
+                    }
+                });
+            },
+
+            // Show emoji reaction based on rating
+            showRatingEmoji(rating) {
+                const emoji = document.getElementById('ratingEmoji');
+                const emojis = ['😞', '😐', '🙂', '😊', '🤩'];
+                emoji.textContent = emojis[rating - 1];
+                emoji.classList.add('show');
+            },
+
+            // Show helpful suggestion based on rating
+            showRatingSuggestion(rating) {
+                const suggestion = document.getElementById('ratingSuggestion');
+                const suggestions = {
+                    1: '😞 We\'re sorry! Please tell us what went wrong so we can improve.',
+                    2: '😐 Thanks for the feedback. What can we do better?',
+                    3: '🙂 We appreciate your feedback!',
+                    4: '😊 Great! What did you like most?',
+                    5: '🤩 Awesome! We\'re thrilled you loved it!'
+                };
+                suggestion.textContent = suggestions[rating];
+                suggestion.classList.add('show');
+            },
+
+            // Update character counter and warn if approaching limit
+            updateCharCounter(textarea) {
+                const counter = document.getElementById('charCounter');
+                const count = textarea.value.length;
+                const max = 500;
+                counter.textContent = `${count}/${max} characters`;
+                
+                counter.classList.remove('warning', 'error');
+                if (count > max) {
+                    counter.classList.add('error');
+                    textarea.classList.add('error');
+                } else if (count > 400) {
+                    counter.classList.add('warning');
+                    textarea.classList.remove('error');
+                } else {
+                    textarea.classList.remove('error');
+                }
+            },
+
+            // Validate name field
+            validateName() {
+                const name = document.getElementById('name');
+                const error = document.getElementById('nameError');
+                if (name.value.trim().length < 2) {
+                    error.textContent = 'Name must be at least 2 characters long';
+                    error.classList.add('show');
+                    name.classList.add('error');
+                    return false;
+                }
+                error.classList.remove('show');
+                name.classList.remove('error');
+                return true;
+            },
+
+            // Validate email format
+            validateEmail() {
+                const email = document.getElementById('email');
+                const error = document.getElementById('emailError');
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                
+                if (!emailRegex.test(email.value)) {
+                    error.textContent = 'Please enter a valid email address';
+                    error.classList.add('show');
+                    email.classList.add('error');
+                    return false;
+                }
+                error.classList.remove('show');
+                email.classList.remove('error');
+                return true;
+            },
+
+            // Validate rating was selected
+            validateRating() {
+                const rating = localStorage.getItem('selectedRating');
+                if (!rating) {
+                    this.showToast('Please select a rating', 'error');
+                    return false;
+                }
+                return true;
+            },
+
+            // Validate message length
+            validateMessage() {
+                const message = document.getElementById('message');
+                const error = document.getElementById('messageError');
+                if (message.value.trim().length < 10) {
+                    error.textContent = 'Message must be at least 10 characters long';
+                    error.classList.add('show');
+                    message.classList.add('error');
+                    return false;
+                }
+                if (message.value.length > 500) {
+                    error.textContent = 'Message cannot exceed 500 characters';
+                    error.classList.add('show');
+                    message.classList.add('error');
+                    return false;
+                }
+                error.classList.remove('show');
+                message.classList.remove('error');
+                return true;
+            },
+
+            // Handle form submission
+            handleSubmit(e) {
+                e.preventDefault();
+
+                // Validate all fields before submission
+                if (!this.validateName() || !this.validateEmail() || !this.validateRating() || !this.validateMessage()) {
+                    return;
+                }
+
+                // Show loading state
+                const submitBtn = e.target.querySelector('.submit-btn');
+                submitBtn.classList.add('loading');
+                submitBtn.innerHTML = '<span class="loading-spinner"></span>Submitting...';
+
+                // Simulate submission delay for better UX
+                setTimeout(() => {
+                    this.saveFeedback(e.target);
+                    submitBtn.classList.remove('loading');
+                    submitBtn.innerHTML = 'Submit Feedback';
+                }, 1500);
+            },
+
+            // Save feedback to localStorage
+            saveFeedback(form) {
+                const feedback = {
+                    id: Date.now(),
+                    name: document.getElementById('name').value,
+                    email: document.getElementById('email').value,
+                    rating: parseInt(localStorage.getItem('selectedRating')),
+                    category: document.getElementById('category').value,
+                    message: document.getElementById('message').value,
+                    recommend: document.getElementById('recommendToggle').classList.contains('active'),
+                    date: new Date().toISOString()
+                };
+
+                let feedbackList = JSON.parse(localStorage.getItem(this.DATA_KEY)) || [];
+                feedbackList.push(feedback);
+                localStorage.setItem(this.DATA_KEY, JSON.stringify(feedbackList));
+
+                // Show success message
+                this.showSuccessMessage();
+                
+                // Reset form and stars
+                form.reset();
+                document.querySelectorAll('.star').forEach(s => s.classList.remove('active'));
+                document.getElementById('ratingEmoji').classList.remove('show');
+                document.getElementById('ratingSuggestion').classList.remove('show');
+                localStorage.removeItem('selectedRating');
+                document.getElementById('recommendToggle').classList.remove('active');
+                document.getElementById('charCounter').textContent = '0/500 characters';
+
+                this.showToast('Feedback submitted successfully!', 'success');
+                this.loadFeedback();
+                this.updateStatistics();
+            },
+
+            // Display success message
+            showSuccessMessage() {
+                const successMsg = document.getElementById('successMessage');
+                successMsg.classList.add('show');
+                setTimeout(() => {
+                    successMsg.classList.remove('show');
+                }, 4000);
+            },
+
+            // Show toast notification
+            showToast(message, type = 'success') {
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.textContent = message;
+                document.body.appendChild(toast);
+
+                setTimeout(() => {
+                    toast.remove();
+                }, 3000);
+            },
+
+            // Toggle recommendation switch
+            toggleRecommend() {
+                const toggle = document.getElementById('recommendToggle');
+                toggle.classList.toggle('active');
+            },
+
+            // Toggle dark/light theme
+            toggleTheme() {
+                document.body.classList.toggle('dark-mode');
+                localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+            },
+
+            // Apply saved theme preference
+            applyTheme() {
+                const theme = localStorage.getItem('theme');
+                if (theme === 'dark') {
+                    document.body.classList.add('dark-mode');
+                }
+            },
+
+            // Load and display all feedback
+            loadFeedback() {
+                const feedbackList = JSON.parse(localStorage.getItem(this.DATA_KEY)) || [];
+                this.displayFeedback(feedbackList);
+            },
+
+            // Display feedback cards
+            displayFeedback(feedbackList) {
+                const container = document.getElementById('feedbackContainer');
+                if (feedbackList.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📬</div>
+                            <div class="empty-state-title">No Feedback Yet</div>
+                            <div class="empty-state-text">Start collecting feedback to see responses appear here.</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = feedbackList.map(feedback => `
+                    <div class="feedback-card">
+                        <div class="feedback-header">
+                            <div>
+                                <div class="feedback-name">${this.escapeHtml(feedback.name)}</div>
+                                <div class="feedback-date">${this.formatDate(feedback.date)}</div>
+                            </div>
+                        </div>
+                        <div class="feedback-meta">
+                            <span class="rating-stars">${'⭐'.repeat(feedback.rating)}</span>
+                            <span class="badge">${feedback.category}</span>
+                            ${feedback.recommend ? '<span class="badge" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">👍 Recommends</span>' : ''}
+                        </div>
+                        <div class="feedback-message">${this.escapeHtml(feedback.message)}</div>
+                        <div class="feedback-actions">
+                            <button class="delete-btn" onclick="FeedbackSystem.deleteFeedback(${feedback.id})">Delete</button>
+                        </div>
+                    </div>
+                `).join('');
+            },
+
+            // Delete feedback by ID
+            deleteFeedback(id) {
+                const feedbackList = JSON.parse(localStorage.getItem(this.DATA_KEY)) || [];
+                const updatedList = feedbackList.filter(f => f.id !== id);
+                localStorage.setItem(this.DATA_KEY, JSON.stringify(updatedList));
+                this.showToast('Feedback deleted', 'success');
+                this.loadFeedback();
+                this.updateStatistics();
+            },
+
+            // Apply filters and search
+            applyFilters() {
+                const feedbackList = JSON.parse(localStorage.getItem(this.DATA_KEY)) || [];
+                const ratingFilter = document.getElementById('filterRating').value;
+                const categoryFilter = document.getElementById('filterCategory').value;
+                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+                let filtered = feedbackList.filter(f => {
+                    const matchRating = ratingFilter === '' || f.rating === parseInt(ratingFilter);
+                    const matchCategory = categoryFilter === '' || f.category === categoryFilter;
+                    const matchSearch = searchTerm === '' || 
+                                      f.name.toLowerCase().includes(searchTerm) || 
+                                      f.message.toLowerCase().includes(searchTerm);
+                    return matchRating && matchCategory && matchSearch;
+                });
+
+                this.displayFeedback(filtered);
+            },
+
+            // Sort feedback by date or rating
+            sortFeedback(sortType) {
+                const feedbackList = JSON.parse(localStorage.getItem(this.DATA_KEY)) || [];
+                
+                if (sortType === 'latest') {
+                    feedbackList.sort((a, b) => new Date(b.date) - new Date(a.date));
+                } else if (sortType === 'rating') {
+                    feedbackList.sort((a, b) => b.rating - a.rating);
+                }
+
+                localStorage.setItem(this.SORT_KEY, sortType);
+                this.displayFeedback(feedbackList);
+            },
+
+            // Update statistics dashboard
+            updateStatistics() {
+                const feedbackList = JSON.parse(localStorage.getItem(this.DATA_KEY)) || [];
+                
+                if (feedbackList.length === 0) {
+                    document.getElementById('totalFeedback').textContent = '0';
+                    document.getElementById('averageRating').textContent = '0.0';
+                    this.updateDistribution([0, 0, 0, 0, 0]);
+                    return;
+                }
+
+                // Calculate and display total feedback
+                document.getElementById('totalFeedback').textContent = feedbackList.length;
+
+                // Calculate and display average rating
+                const avgRating = (feedbackList.reduce((sum, f) => sum + f.rating, 0) / feedbackList.length).toFixed(1);
+                document.getElementById('averageRating').textContent = avgRating;
+
+                // Calculate rating distribution
+                const distribution = [0, 0, 0, 0, 0];
+                feedbackList.forEach(f => {
+                    distribution[f.rating - 1]++;
+                });
+                this.updateDistribution(distribution);
+            },
+
+            // Update the distribution bar visualization
+            updateDistribution(distribution) {
+                const maxCount = Math.max(...distribution, 1);
+                distribution.forEach((count, index) => {
+                    const percentage = (count / maxCount) * 100;
+                    const bar = document.querySelector(`[data-rating="${index + 1}"] .bar-fill`);
+                    const barCount = document.querySelector(`[data-rating="${index + 1}"] .bar-count`);
+                    if (bar) {
+                        bar.style.width = percentage + '%';
+                    }
+                    if (barCount) {
+                        barCount.textContent = count;
+                    }
+                });
+            },
+
+            // Format date to relative format (e.g., "2 days ago")
+            formatDate(dateString) {
+                const date = new Date(dateString);
+                const now = new Date();
+                const diffTime = Math.abs(now - date);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                if (diffDays === 0) return 'Today';
+                if (diffDays === 1) return 'Yesterday';
+                if (diffDays < 7) return `${diffDays} days ago`;
+                
+                return date.toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'short', 
+                    day: 'numeric' 
+                });
+            },
+
+            // Escape HTML to prevent XSS attacks
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+        };
+
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => FeedbackSystem.init());
+    </script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header with Title and Theme Toggle -->
+        <div class="header">
+            <h1 class="header-title">💬 Feedback Collection</h1>
+            <div class="header-controls">
+                <button id="themeToggle" class="theme-toggle" title="Toggle dark mode">🌙</button>
+            </div>
+        </div>
+
+        <!-- Statistics Dashboard -->
+        <div class="stats-dashboard">
+            <!-- Total Feedback Stat Card -->
+            <div class="stat-card">
+                <div class="stat-number" id="totalFeedback">0</div>
+                <div class="stat-label">Total Feedback</div>
+            </div>
+
+            <!-- Average Rating Stat Card -->
+            <div class="stat-card">
+                <div class="stat-number" id="averageRating">0.0</div>
+                <div class="stat-label">Average Rating</div>
+            </div>
+
+            <!-- Rating Distribution Stat Card -->
+            <div class="stat-card">
+                <div class="rating-distribution">
+                    <div class="distribution-bar" data-rating="5">
+                        <div class="bar-label">5⭐</div>
+                        <div class="bar-container">
+                            <div class="bar-fill"></div>
+                        </div>
+                        <div class="bar-count">0</div>
+                    </div>
+                    <div class="distribution-bar" data-rating="4">
+                        <div class="bar-label">4⭐</div>
+                        <div class="bar-container">
+                            <div class="bar-fill"></div>
+                        </div>
+                        <div class="bar-count">0</div>
+                    </div>
+                    <div class="distribution-bar" data-rating="3">
+                        <div class="bar-label">3⭐</div>
+                        <div class="bar-container">
+                            <div class="bar-fill"></div>
+                        </div>
+                        <div class="bar-count">0</div>
+                    </div>
+                    <div class="distribution-bar" data-rating="2">
+                        <div class="bar-label">2⭐</div>
+                        <div class="bar-container">
+                            <div class="bar-fill"></div>
+                        </div>
+                        <div class="bar-count">0</div>
+                    </div>
+                    <div class="distribution-bar" data-rating="1">
+                        <div class="bar-label">1⭐</div>
+                        <div class="bar-container">
+                            <div class="bar-fill"></div>
+                        </div>
+                        <div class="bar-count">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" data-tab="feedback">Submit Feedback</button>
+            <button class="nav-tab" data-tab="view">View Feedback</button>
+        </div>
+
+        <!-- Submit Feedback Tab -->
+        <div id="feedbackTab" class="content-section active">
+            <!-- Success Message -->
+            <div id="successMessage" class="success-message">
+                <div class="success-icon">✅</div>
+                <div class="success-title">Thank You!</div>
+                <div class="success-text">Your feedback has been submitted successfully. We appreciate your input!</div>
+            </div>
+
+            <!-- Feedback Form -->
+            <div class="form-container">
+                <form id="feedbackForm">
+                    <!-- Name Field -->
+                    <div class="form-group">
+                        <label for="name">Full Name *</label>
+                        <input type="text" id="name" placeholder="Enter your name" required>
+                        <div id="nameError" class="error-message"></div>
+                    </div>
+
+                    <!-- Email Field -->
+                    <div class="form-group">
+                        <label for="email">Email Address *</label>
+                        <input type="email" id="email" placeholder="your@email.com" required>
+                        <div id="emailError" class="error-message"></div>
+                    </div>
+
+                    <!-- Rating Field -->
+                    <div class="form-group">
+                        <label>How would you rate your experience? *</label>
+                        <div id="ratingContainer" style="display: flex; align-items: center;">
+                            <div class="star-rating">
+                                <span class="star" data-value="1">⭐</span>
+                                <span class="star" data-value="2">⭐</span>
+                                <span class="star" data-value="3">⭐</span>
+                                <span class="star" data-value="4">⭐</span>
+                                <span class="star" data-value="5">⭐</span>
+                            </div>
+                            <span id="ratingEmoji" class="rating-emoji"></span>
+                        </div>
+                        <div id="ratingSuggestion" class="rating-suggestion"></div>
+                    </div>
+
+                    <!-- Category Field -->
+                    <div class="form-group">
+                        <label for="category">Feedback Category *</label>
+                        <select id="category" required>
+                            <option value="">Select a category</option>
+                            <option value="Service">Service</option>
+                            <option value="Product">Product</option>
+                            <option value="Website">Website</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <!-- Message Field -->
+                    <div class="form-group">
+                        <label for="message">Your Feedback *</label>
+                        <textarea id="message" placeholder="Tell us what you think..." required></textarea>
+                        <div id="charCounter" class="char-counter">0/500 characters</div>
+                        <div id="messageError" class="error-message"></div>
+                    </div>
+
+                    <!-- Recommendation Toggle -->
+                    <div class="form-group">
+                        <label>Would you recommend us to others?</label>
+                        <div class="toggle-switch-container">
+                            <div id="recommendToggle" class="toggle-switch"></div>
+                            <span class="toggle-label">Yes, I would recommend</span>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="submit-btn">Submit Feedback</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- View Feedback Tab -->
+        <div id="viewTab" class="content-section">
+            <!-- Filter and Search Section -->
+            <div class="filter-section">
+                <div class="filter-group">
+                    <label class="filter-label">Filter by Rating:</label>
+                    <select id="filterRating" class="filter-select">
+                        <option value="">All Ratings</option>
+                        <option value="5">5 Stars</option>
+                        <option value="4">4 Stars</option>
+                        <option value="3">3 Stars</option>
+                        <option value="2">2 Stars</option>
+                        <option value="1">1 Star</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Filter by Category:</label>
+                    <select id="filterCategory" class="filter-select">
+                        <option value="">All Categories</option>
+                        <option value="Service">Service</option>
+                        <option value="Product">Product</option>
+                        <option value="Website">Website</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Search:</label>
+                    <input type="text" id="searchInput" class="filter-input" placeholder="Search by name or message...">
+                </div>
+
+                <div class="filter-group">
+                    <button id="sortLatest" class="sort-btn">📅 Latest</button>
+                    <button id="sortRating" class="sort-btn">⭐ Highest Rated</button>
+                </div>
+            </div>
+
+            <!-- Feedback Container -->
+            <div id="feedbackContainer" class="feedback-list"></div>
+        </div>
+    </div>
+</body>
+</html>
