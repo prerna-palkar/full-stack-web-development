@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Course Enrollment</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #f5f7fb;
+}
+
+header {
+  background: #2d89ef;
+  color: white;
+  padding: 15px;
+  text-align: center;
+}
+
+.container {
+  padding: 20px;
+  max-width: 1100px;
+  margin: auto;
+}
+
+.search-bar {
+  margin: 15px 0;
+  display: flex;
+  gap: 10px;
+}
+
+input, select {
+  padding: 10px;
+  width: 100%;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
+  transition: 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.card img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+}
+
+.card-content {
+  padding: 15px;
+}
+
+button {
+  background: #2d89ef;
+  color: white;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+button:hover {
+  background: #1b5fbf;
+}
+
+.section-title {
+  margin-top: 30px;
+}
+
+.progress {
+  height: 6px;
+  background: #ddd;
+  border-radius: 5px;
+  margin-top: 5px;
+}
+
+.progress-bar {
+  height: 6px;
+  background: green;
+  border-radius: 5px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h2>Course Enrollment Platform</h2>
+</header>
+
+<div class="container">
+
+<div class="search-bar">
+  <input id="search" placeholder="Search courses..." onkeyup="renderCourses()">
+  <select id="filter" onchange="renderCourses()">
+    <option value="">All Categories</option>
+    <option>Programming</option>
+    <option>Design</option>
+    <option>Business</option>
+    <option>Data Science</option>
+  </select>
+</div>
+
+<h3>All Courses</h3>
+<div id="courseList" class="grid"></div>
+
+<h3 class="section-title">My Courses</h3>
+<div id="myCourses" class="grid"></div>
+
+</div>
+
+<script>
+const courses = [
+{
+title:"Web Development",
+category:"Programming",
+img:"https://images.unsplash.com/photo-1498050108023-c5249f4df085",
+desc:"Learn HTML, CSS, JavaScript",
+duration:"6 weeks"
+},
+{
+title:"Python Programming",
+category:"Programming",
+img:"https://images.unsplash.com/photo-1515879218367-8466d910aaa4",
+desc:"Master Python",
+duration:"5 weeks"
+},
+{
+title:"UI/UX Design",
+category:"Design",
+img:"https://images.unsplash.com/photo-1586717791821-3f44a563fa4c",
+desc:"Design modern interfaces",
+duration:"4 weeks"
+},
+{
+title:"Graphic Design",
+category:"Design",
+img:"https://images.unsplash.com/photo-1581291518857-4e27b48ff24e",
+desc:"Creative design skills",
+duration:"4 weeks"
+},
+{
+title:"Business Management",
+category:"Business",
+img:"https://images.unsplash.com/photo-1556745757-8d76bdb6984b",
+desc:"Understand business strategies",
+duration:"5 weeks"
+},
+{
+title:"Startup Basics",
+category:"Business",
+img:"https://images.unsplash.com/photo-1521737604893-d14cc237f11d",
+desc:"Learn how to start a business",
+duration:"5 weeks"
+},
+{
+title:"Data Science Basics",
+category:"Data Science",
+img:"https://images.unsplash.com/photo-1551288049-bebda4e38f71",
+desc:"Learn data analysis",
+duration:"6 weeks"
+},
+{
+title:"Machine Learning",
+category:"Data Science",
+img:"https://images.unsplash.com/photo-1504384308090-c894fdcc538d",
+desc:"Introduction to ML",
+duration:"6 weeks"
+}
+];
+
+let enrolled = JSON.parse(localStorage.getItem("enrolled")) || [];
+
+function save(){
+localStorage.setItem("enrolled", JSON.stringify(enrolled));
+}
+
+function renderCourses(){
+let list = document.getElementById("courseList");
+let search = document.getElementById("search").value.toLowerCase();
+let filter = document.getElementById("filter").value;
+
+list.innerHTML = "";
+
+courses.forEach((c,i)=>{
+if((c.title.toLowerCase().includes(search)) &&
+(!filter || c.category===filter)){
+
+list.innerHTML += `
+<div class="card">
+<img src="${c.img}">
+<div class="card-content">
+<h4>${c.title}</h4>
+<p>${c.desc}</p>
+<p><b>${c.duration}</b></p>
+<button onclick="enroll(${i})">Enroll</button>
+</div>
+</div>
+`;
+}
+});
+}
+
+function renderMyCourses(){
+let list = document.getElementById("myCourses");
+list.innerHTML = "";
+
+enrolled.forEach((c,i)=>{
+let progress = Math.floor(Math.random()*100);
+
+list.innerHTML += `
+<div class="card">
+<img src="${c.img}">
+<div class="card-content">
+<h4>${c.title}</h4>
+<p>${c.desc}</p>
+<p><b>${c.duration}</b></p>
+<div class="progress">
+<div class="progress-bar" style="width:${progress}%"></div>
+</div>
+<button onclick="removeCourse(${i})">Remove</button>
+</div>
+</div>
+`;
+});
+}
+
+function enroll(i){
+let course = courses[i];
+
+if(enrolled.find(c=>c.title===course.title)){
+alert("Already enrolled");
+return;
+}
+
+enrolled.push(course);
+save();
+alert("Enrolled successfully");
+renderMyCourses();
+}
+
+function removeCourse(i){
+enrolled.splice(i,1);
+save();
+renderMyCourses();
+}
+
+renderCourses();
+renderMyCourses();
+</script>
+
+</body>
+</html>

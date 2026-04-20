@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Digital Clock & Alarm</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #1e272e, #2f3640);
+    color: white;
+}
+
+/* Navbar */
+nav {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px 30px;
+    background: rgba(0,0,0,0.3);
+}
+
+.logo {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+/* Main */
+.container {
+    text-align: center;
+    margin-top: 60px;
+}
+
+/* Clock */
+.clock {
+    font-size: 60px;
+    letter-spacing: 2px;
+}
+
+.date {
+    margin-top: 10px;
+    font-size: 18px;
+    color: #dcdde1;
+}
+
+/* Alarm Box */
+.alarm-box {
+    margin-top: 40px;
+}
+
+input {
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    font-size: 16px;
+}
+
+button {
+    padding: 10px 15px;
+    border: none;
+    background: #00a8ff;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-left: 5px;
+}
+
+button:hover {
+    background: #0097e6;
+}
+
+/* Alarm List */
+.alarms {
+    margin-top: 20px;
+}
+
+.alarm-item {
+    margin: 10px auto;
+    padding: 10px;
+    background: rgba(255,255,255,0.1);
+    width: 250px;
+    border-radius: 8px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- Navbar -->
+<nav>
+    <div class="logo">⏰ Clock & Alarm</div>
+</nav>
+
+<!-- Main -->
+<div class="container">
+    <div class="clock" id="clock">00:00:00</div>
+    <div class="date" id="date"></div>
+
+    <!-- Alarm -->
+    <div class="alarm-box">
+        <input type="time" id="alarmTime">
+        <button onclick="setAlarm()">Set Alarm</button>
+    </div>
+
+    <div class="alarms" id="alarmList"></div>
+</div>
+
+<script>
+
+let alarms = [];
+
+// Clock update
+function updateClock() {
+    let now = new Date();
+
+    let h = String(now.getHours()).padStart(2,'0');
+    let m = String(now.getMinutes()).padStart(2,'0');
+    let s = String(now.getSeconds()).padStart(2,'0');
+
+    document.getElementById("clock").innerText = `${h}:${m}:${s}`;
+
+    document.getElementById("date").innerText = now.toDateString();
+
+    checkAlarms(`${h}:${m}`);
+}
+
+// Set alarm
+function setAlarm() {
+    let time = document.getElementById("alarmTime").value;
+
+    if (!time) return alert("Select time");
+
+    alarms.push(time);
+    renderAlarms();
+}
+
+// Show alarms
+function renderAlarms() {
+    let list = document.getElementById("alarmList");
+    list.innerHTML = "";
+
+    alarms.forEach(a => {
+        let div = document.createElement("div");
+        div.className = "alarm-item";
+        div.innerText = "⏰ " + a;
+        list.appendChild(div);
+    });
+}
+
+// Check alarms
+function checkAlarms(current) {
+    alarms.forEach((alarm, index) => {
+        if (alarm === current) {
+            alert("⏰ Alarm Ringing!");
+            alarms.splice(index,1);
+            renderAlarms();
+        }
+    });
+}
+
+setInterval(updateClock, 1000);
+
+</script>
+
+</body>
+</html>

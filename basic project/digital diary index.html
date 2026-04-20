@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Diary</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --pearl-white: #F8F6F2;
+            --pastel-yellow: #FFF3B0;
+            --soft-pink: #FFCAD4;
+            --lavender: #CDB4DB;
+            --mint-green: #B7E4C7;
+            --light-peach: #FFD6A5;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--pearl-white) 0%, #faf8f3 100%);
+            min-height: 100vh;
+            cursor: none;
+            overflow-x: hidden;
+        }
+
+        /* Custom Cursor */
+        .cursor {
+            position: fixed;
+            width: 15px;
+            height: 15px;
+            border: 2px solid #ff6b9d;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: multiply;
+        }
+
+        .cursor-outer {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            border: 1px solid rgba(255, 107, 157, 0.5);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+            mix-blend-mode: screen;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid rgba(255, 107, 157, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            color: #ff6b9d;
+            margin-bottom: 5px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .tagline {
+            font-size: 0.95rem;
+            color: #999;
+            font-style: italic;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(255, 107, 157, 0.2);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff6b9d, #ff8fab);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 107, 157, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #ff6b9d;
+            border: 2px solid #ff6b9d;
+        }
+
+        .btn-secondary:hover {
+            background: #ff6b9d;
+            color: white;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .filter-btn.active {
+            background: var(--soft-pink);
+            border-color: var(--soft-pink);
+            color: white;
+        }
+
+        .filter-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .search-box {
+            padding: 12px 20px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            width: 300px;
+            max-width: 90%;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #ff6b9d;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .empty-state p {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        .diary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px) rotate(-5deg);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) rotate(0deg);
+            }
+        }
+
+        .diary-card {
+            position: relative;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+            cursor: pointer;
+            transition: all 0.3s;
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            transform: rotate(var(--rotation));
+            animation: slideIn 0.4s ease;
+        }
+
+        .diary-card:hover {
+            transform: translateY(-10px) rotate(var(--rotation)) scale(1.02);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .diary-card.pinned {
+            grid-row: span 2;
+            box-shadow: 0 0 0 2px #ffaa00, 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            flex: 1;
+            color: #333;
+            word-break: break-word;
+        }
+
+        .card-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .card-btn {
+            background: rgba(255, 255, 255, 0.7);
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-btn:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: scale(1.1);
+        }
+
+        .card-mood {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .card-date {
+            font-size: 0.85rem;
+            color: rgba(0, 0, 0, 0.5);
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .card-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .tag {
+            background: rgba(255, 255, 255, 0.6);
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .card-content {
+            flex: 1;
+            color: #555;
+            line-height: 1.6;
+            word-wrap: break-word;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 5;
+            -webkit-box-orient: vertical;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .modal-header h2 {
+            font-size: 1.8rem;
+            color: #333;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.2s;
+        }
+
+        .modal-close:hover {
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="date"],
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #ff6b9d;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 150px;
+        }
+
+        .color-picker {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .color-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: transform 0.2s;
+        }
+
+        .color-option:hover {
+            transform: scale(1.1);
+        }
+
+        .color-option.selected {
+            border-color: #333;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .form-group-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .form-actions button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, #ff6b9d, #ff8fab);
+            color: white;
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 157, 0.4);
+        }
+
+        .btn-cancel {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-cancel:hover {
+            background: #e0e0e0;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background: #333;
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            animation: slideIn 0.3s ease, slideOut 0.3s ease 2.7s forwards;
+            z-index: 2000;
+        }
+
+        .toast.success {
+            background: #4caf50;
+        }
+
+        .toast.error {
+            background: #ff6b6b;
+        }
+
+        @keyframes slideOut {
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        .mood-picker {
+            display: flex;
+            gap: 10px;
+            font-size: 2rem;
+        }
+
+        .mood-option {
+            cursor: pointer;
+            transition: transform 0.2s;
+            opacity: 0.6;
+        }
+
+        .mood-option:hover,
+        .mood-option.selected {
+            transform: scale(1.2);
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            .diary-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 20px;
+            }
+
+            .modal-content {
+                padding: 25px;
+                max-width: 95%;
+            }
+
+            .search-box {
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .form-group-row {
+                grid-template-columns: 1fr;
+            }
+
+            .diary-card.pinned {
+                grid-row: auto;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px 10px;
+            }
+
+            header {
+                padding: 20px 10px;
+            }
+
+            header h1 {
+                font-size: 1.5rem;
+            }
+
+            .diary-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-outer" id="cursorOuter"></div>
+
+    <!-- Header -->
+    <header>
+        <h1>✨ My Digital Diary</h1>
+        <p class="tagline">Your thoughts, your little universe 💫</p>
+        <div class="toolbar">
+            <button class="btn btn-primary" onclick="openAddModal()">+ New Entry</button>
+        </div>
+        <div class="controls">
+            <input type="text" class="search-box" id="searchInput" placeholder="Search your entries...">
+            <button class="filter-btn active" onclick="filterByTag('')">All</button>
+            <button class="filter-btn" onclick="filterByTag('Personal')">Personal</button>
+            <button class="filter-btn" onclick="filterByTag('Study')">Study</button>
+            <button class="filter-btn" onclick="filterByTag('Ideas')">Ideas</button>
+            <button class="filter-btn" onclick="filterByTag('Mood')">Mood</button>
+            <select id="sortSelect" onchange="handleSort()">
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+            </select>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+        <div class="diary-grid" id="diaryGrid"></div>
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <div class="empty-state-icon">📝</div>
+            <p>Start writing your story...</p>
+            <p>Click "New Entry" to add your first entry</p>
+        </div>
+    </div>
+
+    <!-- Modal for Add/Edit -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">New Entry</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+
+            <div class="form-group">
+                <label>Mood</label>
+                <div class="mood-picker">
+                    <span class="mood-option" data-mood="😊" onclick="selectMood('😊')">😊</span>
+                    <span class="mood-option" data-mood="😢" onclick="selectMood('😢')">😢</span>
+                    <span class="mood-option" data-mood="😎" onclick="selectMood('😎')">😎</span>
+                    <span class="mood-option" data-mood="❤️" onclick="selectMood('❤️')">❤️</span>
+                    <span class="mood-option" data-mood="🤔" onclick="selectMood('🤔')">🤔</span>
+                    <span class="mood-option" data-mood="😴" onclick="selectMood('😴')">😴</span>
+                </div>
+                <input type="hidden" id="selectedMood">
+            </div>
+
+            <div class="form-group">
+                <label>Title</label>
+                <input type="text" id="entryTitle" placeholder="Give your entry a title...">
+            </div>
+
+            <div class="form-group-row">
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" id="entryDate">
+                </div>
+                <div class="form-group">
+                    <label>Tag</label>
+                    <select id="entryTag">
+                        <option value="Personal">Personal</option>
+                        <option value="Study">Study</option>
+                        <option value="Ideas">Ideas</option>
+                        <option value="Mood">Mood</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Content</label>
+                <textarea id="entryContent" placeholder="Write your thoughts..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Card Color</label>
+                <div class="color-picker">
+                    <div class="color-option selected" style="background: var(--pastel-yellow);" onclick="selectColor('var(--pastel-yellow)')" data-color="var(--pastel-yellow)"></div>
+                    <div class="color-option" style="background: var(--soft-pink);" onclick="selectColor('var(--soft-pink)')" data-color="var(--soft-pink)"></div>
+                    <div class="color-option" style="background: var(--lavender);" onclick="selectColor('var(--lavender)')" data-color="var(--lavender)"></div>
+                    <div class="color-option" style="background: var(--mint-green);" onclick="selectColor('var(--mint-green)')" data-color="var(--mint-green)"></div>
+                    <div class="color-option" style="background: var(--light-peach);" onclick="selectColor('var(--light-peach)')" data-color="var(--light-peach)"></div>
+                </div>
+                <input type="hidden" id="selectedColor" value="var(--pastel-yellow)">
+            </div>
+
+            <div class="form-actions">
+                <button class="btn-save" onclick="saveEntry()">Save Entry</button>
+                <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let entries = [];
+        let filteredEntries = [];
+        let currentTag = '';
+        let editingId = null;
+        let selectedMood = '😊';
+        let selectedColor = 'var(--pastel-yellow)';
+
+        const moods = ['😊', '😢', '😎', '❤️', '🤔', '😴'];
+        const colors = [
+            'var(--pastel-yellow)',
+            'var(--soft-pink)',
+            'var(--lavender)',
+            'var(--mint-green)',
+            'var(--light-peach)'
+        ];
+
+        // Custom Cursor
+        const cursor = document.getElementById('cursor');
+        const cursorOuter = document.getElementById('cursorOuter');
+
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX - 8 + 'px';
+            cursor.style.top = e.clientY - 8 + 'px';
+            cursorOuter.style.left = e.clientX - 20 + 'px';
+            cursorOuter.style.top = e.clientY - 20 + 'px';
+        });
+
+        // Load entries from localStorage
+        function loadEntries() {
+            const saved = localStorage.getItem('diaryEntries');
+            entries = saved ? JSON.parse(saved) : [];
+            filteredEntries = [...entries];
+            renderEntries();
+        }
+
+        // Save entries to localStorage
+        function saveToLocalStorage() {
+            localStorage.setItem('diaryEntries', JSON.stringify(entries));
+        }
+
+        // Generate rotation for cards
+        function getRandomRotation() {
+            return (Math.random() * 6 - 3) + 'deg';
+        }
+
+        // Open modal for new entry
+        function openAddModal() {
+            editingId = null;
+            document.getElementById('modalTitle').textContent = 'New Entry';
+            document.getElementById('entryTitle').value = '';
+            document.getElementById('entryContent').value = '';
+            document.getElementById('entryTag').value = 'Personal';
+            document.getElementById('entryDate').valueAsDate = new Date();
+            selectedMood = '😊';
+            selectedColor = 'var(--pastel-yellow)';
+            updateMoodSelection();
+            updateColorSelection();
+            document.getElementById('modal').classList.add('show');
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('modal').classList.remove('show');
+        }
+
+        // Select mood
+        function selectMood(mood) {
+            selectedMood = mood;
+            updateMoodSelection();
+        }
+
+        // Update mood selection UI
+        function updateMoodSelection() {
+            document.querySelectorAll('.mood-option').forEach(opt => {
+                opt.classList.remove('selected');
+                if (opt.dataset.mood === selectedMood) {
+                    opt.classList.add('selected');
+                }
+            });
+        }
+
+        // Select color
+        function selectColor(color) {
+            selectedColor = color;
+            updateColorSelection();
+        }
+
+        // Update color selection UI
+        function updateColorSelection() {
+            document.querySelectorAll('.color-option').forEach(opt => {
+                opt.classList.remove('selected');
+                if (opt.dataset.color === selectedColor) {
+                    opt.classList.add('selected');
+                }
+            });
+        }
+
+        // Save or update entry
+        function saveEntry() {
+            const title = document.getElementById('entryTitle').value.trim();
+            const content = document.getElementById('entryContent').value.trim();
+            const date = document.getElementById('entryDate').value;
+            const tag = document.getElementById('entryTag').value;
+
+            if (!title || !content) {
+                alert('Please fill in title and content');
+                return;
+            }
+
+            if (editingId) {
+                const entry = entries.find(e => e.id === editingId);
+                entry.title = title;
+                entry.content = content;
+                entry.date = date;
+                entry.tag = tag;
+                entry.mood = selectedMood;
+                entry.color = selectedColor;
+                showToast('Entry updated!', 'success');
+            } else {
+                const newEntry = {
+                    id: Date.now(),
+                    title,
+                    content,
+                    date,
+                    tag,
+                    mood: selectedMood,
+                    color: selectedColor,
+                    pinned: false
+                };
+                entries.unshift(newEntry);
+                showToast('Entry created!', 'success');
+            }
+
+            saveToLocalStorage();
+            closeModal();
+            filterByTag(currentTag);
+        }
+
+        // Delete entry
+        function deleteEntry(id) {
+            if (confirm('Delete this entry?')) {
+                entries = entries.filter(e => e.id !== id);
+                saveToLocalStorage();
+                filterByTag(currentTag);
+                showToast('Entry deleted', 'success');
+            }
+        }
+
+        // Edit entry
+        function editEntry(id) {
+            const entry = entries.find(e => e.id === id);
+            if (!entry) return;
+
+            editingId = id;
+            document.getElementById('modalTitle').textContent = 'Edit Entry';
+            document.getElementById('entryTitle').value = entry.title;
+            document.getElementById('entryContent').value = entry.content;
+            document.getElementById('entryDate').value = entry.date;
+            document.getElementById('entryTag').value = entry.tag;
+            selectedMood = entry.mood;
+            selectedColor = entry.color;
+            updateMoodSelection();
+            updateColorSelection();
+            document.getElementById('modal').classList.add('show');
+        }
+
+        // Toggle pin
+        function togglePin(id) {
+            const entry = entries.find(e => e.id === id);
+            if (entry) {
+                entry.pinned = !entry.pinned;
+                saveToLocalStorage();
+                filterByTag(currentTag);
+            }
+        }
+
+        // Filter by tag
+        function filterByTag(tag) {
+            currentTag = tag;
+            if (tag) {
+                filteredEntries = entries.filter(e => e.tag === tag);
+            } else {
+                filteredEntries = [...entries];
+            }
+
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event?.target?.classList.add('active');
+
+            handleSearch();
+        }
+
+        // Search entries
+        function handleSearch() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            if (!query) {
+                renderEntries();
+                return;
+            }
+
+            const searched = filteredEntries.filter(e =>
+                e.title.toLowerCase().includes(query) ||
+                e.content.toLowerCase().includes(query)
+            );
+            renderEntries(searched);
+        }
+
+        // Sort entries
+        function handleSort() {
+            const sortValue = document.getElementById('sortSelect').value;
+            if (sortValue === 'oldest') {
+                filteredEntries.sort((a, b) => new Date(a.date) - new Date(b.date));
+            } else {
+                filteredEntries.sort((a, b) => new Date(b.date) - new Date(a.date));
+            }
+            renderEntries();
+        }
+
+        // Render entries
+        function renderEntries(entriesToRender = filteredEntries) {
+            const grid = document.getElementById('diaryGrid');
+            const empty = document.getElementById('emptyState');
+
+            if (entriesToRender.length === 0) {
+                grid.innerHTML = '';
+                empty.style.display = 'block';
+                return;
+            }
+
+            empty.style.display = 'none';
+            grid.innerHTML = entriesToRender.map(entry => `
+                <div class="diary-card ${entry.pinned ? 'pinned' : ''}" style="background: ${entry.color}; --rotation: ${getRandomRotation()};">
+                    <div class="card-header">
+                        <div class="card-title">${entry.title}</div>
+                        <div class="card-controls">
+                            <button class="card-btn" onclick="togglePin(${entry.id})" title="Pin note">${entry.pinned ? '📌' : '🔖'}</button>
+                            <button class="card-btn" onclick="editEntry(${entry.id})" title="Edit">✏️</button>
+                            <button class="card-btn" onclick="deleteEntry(${entry.id})" title="Delete">🗑️</button>
+                        </div>
+                    </div>
+                    <div class="card-mood">${entry.mood}</div>
+                    <div class="card-date">${new Date(entry.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</div>
+                    <div class="card-tags">
+                        <span class="tag">${entry.tag}</span>
+                    </div>
+                    <div class="card-content">${entry.content}</div>
+                </div>
+            `).join('');
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // Close modal on background click
+        document.getElementById('modal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('modal')) {
+                closeModal();
+            }
+        });
+
+        // Search on input
+        document.getElementById('searchInput').addEventListener('input', handleSearch);
+
+        // Initialize
+        window.addEventListener('load', () => {
+            loadEntries();
+            if (entries.length === 0) {
+                document.getElementById('emptyState').style.display = 'block';
+            }
+        });
+
+        // Set default date to today
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('entryDate').value = today;
+    </script>
+</body>
+</html>

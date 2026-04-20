@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CertifyPro - Real Signature Certificate</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family:Segoe UI;
+  background:#0f172a;
+  color:white;
+}
+
+.header{
+  text-align:center;
+  padding:15px;
+  background:#111827;
+  font-size:20px;
+  font-weight:bold;
+}
+
+.container{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:20px;
+  padding:20px;
+}
+
+.form{
+  width:320px;
+  background:#1e293b;
+  padding:15px;
+  border-radius:12px;
+}
+
+input, select{
+  width:100%;
+  padding:10px;
+  margin:8px 0;
+  border:none;
+  border-radius:8px;
+}
+
+button{
+  width:100%;
+  padding:10px;
+  border:none;
+  border-radius:8px;
+  background:#22c55e;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+/* CERTIFICATE */
+.certificate{
+  width:650px;
+  height:420px;
+  background:white;
+  color:black;
+  border-radius:10px;
+  position:relative;
+  padding:30px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.5);
+}
+
+.logo{
+  position:absolute;
+  top:20px;
+  left:20px;
+  font-weight:bold;
+  color:#1e3a8a;
+}
+
+.id{
+  position:absolute;
+  top:20px;
+  right:20px;
+  font-size:12px;
+  color:#555;
+}
+
+.title{
+  text-align:center;
+  font-size:28px;
+  font-weight:bold;
+  color:#1e3a8a;
+  margin-top:20px;
+}
+
+.sub{
+  text-align:center;
+  margin-top:10px;
+}
+
+.name{
+  text-align:center;
+  font-size:32px;
+  font-weight:bold;
+  margin-top:35px;
+}
+
+.course{
+  text-align:center;
+  margin-top:10px;
+  font-size:18px;
+  color:#444;
+}
+
+/* SIGNATURES (REAL LOOK) */
+.signatures{
+  position:absolute;
+  bottom:60px;
+  width:100%;
+  display:flex;
+  justify-content:space-around;
+  text-align:center;
+  font-size:13px;
+}
+
+.sig{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+/* REAL SIGNATURE STYLE (NOT EMPTY) */
+.signature-text{
+  font-family: "Brush Script MT", cursive;
+  font-size:22px;
+  color:#111;
+  transform: rotate(-5deg);
+  margin-bottom:5px;
+}
+
+/* DATE */
+.date{
+  position:absolute;
+  bottom:20px;
+  right:30px;
+  font-size:13px;
+  color:#333;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">🏆 CertifyPro - Real Signature Certificate</div>
+
+<div class="container">
+
+<!-- FORM -->
+<div class="form">
+  <h3>Create Certificate</h3>
+
+  <input id="name" placeholder="Student Name">
+
+  <select id="course">
+    <option>Web Development Mastery</option>
+    <option>AI & Machine Learning Basics</option>
+    <option>Data Analytics Professional</option>
+    <option>Cyber Security Essentials</option>
+    <option>UI/UX Design Bootcamp</option>
+  </select>
+
+  <input id="date" type="date">
+
+  <button onclick="generate()">Generate</button>
+  <button onclick="downloadCert()">Download</button>
+</div>
+
+<!-- CERTIFICATE -->
+<div id="cert" class="certificate">
+
+  <div class="logo">🏫 Tech Academy</div>
+  <div class="id" id="cid">ID: CERT-1001</div>
+
+  <div class="title">CERTIFICATE OF COMPLETION</div>
+  <div class="sub">This is proudly presented to</div>
+
+  <div class="name" id="cname">Your Name</div>
+
+  <div class="course" id="ccourse">Course Name</div>
+
+  <div class="signatures">
+
+    <div class="sig">
+      <div class="signature-text">Dr. John Smith</div>
+      Instructor
+    </div>
+
+    <div class="sig">
+      <div class="signature-text">Prof. Emily Carter</div>
+      Director
+    </div>
+
+  </div>
+
+  <div class="date" id="cdate">Date: --</div>
+
+</div>
+
+</div>
+
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+<script>
+
+let id = 1001;
+
+function generate(){
+
+  let name = document.getElementById("name").value;
+  let course = document.getElementById("course").value;
+  let date = document.getElementById("date").value;
+
+  if(!name || !course || !date){
+    alert("Fill all fields");
+    return;
+  }
+
+  document.getElementById("cname").innerText = name;
+  document.getElementById("ccourse").innerText = course;
+  document.getElementById("cdate").innerText = "Date: " + date;
+
+  document.getElementById("cid").innerText = "ID: CERT-" + (id++);
+}
+
+/* DOWNLOAD */
+function downloadCert(){
+  html2canvas(document.getElementById("cert")).then(canvas=>{
+    let link = document.createElement("a");
+    link.download = "certificate.png";
+    link.href = canvas.toDataURL();
+    link.click();
+  });
+}
+
+</script>
+
+</body>
+</html>

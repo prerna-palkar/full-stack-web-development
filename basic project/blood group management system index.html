@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>BloodLink</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family:'Segoe UI',sans-serif;
+  background: linear-gradient(135deg,#7f1d1d,#111827,#020617);
+  color:white;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+
+/* MAIN */
+.container{
+  width:900px;
+  backdrop-filter: blur(18px);
+  background: rgba(255,255,255,0.05);
+  border-radius:18px;
+  padding:25px;
+  box-shadow:0 20px 50px rgba(0,0,0,0.6);
+}
+
+/* TITLE */
+.title{
+  text-align:center;
+  font-size:26px;
+  font-weight:bold;
+  margin-bottom:15px;
+}
+
+/* GRID */
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:15px;
+}
+
+/* CARD */
+.card{
+  background:rgba(255,255,255,0.06);
+  padding:15px;
+  border-radius:12px;
+}
+
+/* INPUT */
+input,select{
+  width:100%;
+  padding:10px;
+  margin:5px 0;
+  border-radius:8px;
+  border:none;
+  background:#111827;
+  color:white;
+}
+
+/* BUTTON */
+button{
+  width:100%;
+  padding:10px;
+  margin-top:8px;
+  border:none;
+  border-radius:8px;
+  background:linear-gradient(135deg,#ef4444,#dc2626);
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+button:hover{
+  transform:scale(1.05);
+}
+
+/* LIST */
+.list{
+  max-height:250px;
+  overflow:auto;
+}
+
+/* ITEM */
+.item{
+  background:#111827;
+  padding:10px;
+  border-radius:10px;
+  margin:8px 0;
+  animation:fade 0.4s;
+}
+
+/* URGENT */
+.urgent{
+  border:2px solid #ef4444;
+  box-shadow:0 0 10px #ef4444;
+}
+
+/* MATCH */
+.match{
+  font-size:12px;
+  color:#22c55e;
+}
+
+@keyframes fade{
+  from{opacity:0; transform:translateY(10px);}
+  to{opacity:1;}
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="title">🩸 BloodLink - Smart Donation System</div>
+
+<div class="grid">
+
+<!-- DONOR -->
+<div class="card">
+  <h3>Become Donor</h3>
+
+  <input id="dname" placeholder="Your Name">
+
+  <select id="dblood">
+    <option>A+</option><option>A-</option>
+    <option>B+</option><option>B-</option>
+    <option>O+</option><option>O-</option>
+    <option>AB+</option><option>AB-</option>
+  </select>
+
+  <input id="dcity" placeholder="City">
+
+  <button onclick="addDonor()">Register</button>
+
+  <div class="list" id="donors"></div>
+</div>
+
+<!-- REQUEST -->
+<div class="card">
+  <h3>Request Blood</h3>
+
+  <input id="rname" placeholder="Patient Name">
+
+  <select id="rblood">
+    <option>A+</option><option>A-</option>
+    <option>B+</option><option>B-</option>
+    <option>O+</option><option>O-</option>
+    <option>AB+</option><option>AB-</option>
+  </select>
+
+  <input id="rcity" placeholder="City">
+
+  <select id="urgency">
+    <option>Normal</option>
+    <option>Urgent</option>
+  </select>
+
+  <button onclick="addRequest()">Request</button>
+
+  <div class="list" id="requests"></div>
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+let donors = [];
+let requests = [];
+
+/* ADD DONOR */
+function addDonor(){
+  let name = dname.value;
+  let blood = dblood.value;
+  let city = dcity.value;
+
+  if(!name || !city){
+    alert("Fill all fields");
+    return;
+  }
+
+  donors.push({name,blood,city});
+  render();
+}
+
+/* ADD REQUEST */
+function addRequest(){
+  let name = rname.value;
+  let blood = rblood.value;
+  let city = rcity.value;
+  let urgency = document.getElementById("urgency").value;
+
+  if(!name || !city){
+    alert("Fill all fields");
+    return;
+  }
+
+  requests.push({name,blood,city,urgency});
+  render();
+}
+
+/* MATCHING FEATURE (UNIQUE) */
+function findMatches(req){
+  return donors.filter(d =>
+    d.blood === req.blood && d.city.toLowerCase() === req.city.toLowerCase()
+  );
+}
+
+/* RENDER */
+function render(){
+
+  /* DONORS */
+  donorsBox = document.getElementById("donors");
+  donorsBox.innerHTML = "";
+
+  donors.forEach(d=>{
+    donorsBox.innerHTML += `
+      <div class="item">
+        <b>${d.name}</b> (${d.blood})<br>
+        <small>${d.city}</small>
+      </div>
+    `;
+  });
+
+  /* REQUESTS */
+  reqBox = document.getElementById("requests");
+  reqBox.innerHTML = "";
+
+  requests.forEach(r=>{
+
+    let matches = findMatches(r);
+
+    reqBox.innerHTML += `
+      <div class="item ${r.urgency==="Urgent"?"urgent":""}">
+        <b>${r.name}</b> needs ${r.blood}<br>
+        <small>${r.city} • ${r.urgency}</small><br>
+
+        <div class="match">
+          ${matches.length > 0
+            ? "✅ " + matches.length + " donor(s) available"
+            : "❌ No donor found"}
+        </div>
+      </div>
+    `;
+  });
+}
+
+</script>
+
+</body>
+</html>
