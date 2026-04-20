@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MoneyMoodz Pro 💰</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family:Segoe UI;
+  background:#0f172a;
+  color:white;
+}
+
+/* HEADER */
+.header{
+  text-align:center;
+  padding:15px;
+  font-size:20px;
+  background:#111827;
+  font-weight:bold;
+}
+
+/* LAYOUT */
+.container{
+  display:flex;
+  gap:15px;
+  padding:15px;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+
+/* CARD */
+.card{
+  width:300px;
+  background:#1e293b;
+  padding:15px;
+  border-radius:12px;
+}
+
+/* INPUTS */
+input, select{
+  width:100%;
+  padding:10px;
+  margin:6px 0;
+  border-radius:8px;
+  border:none;
+  outline:none;
+}
+
+button{
+  width:100%;
+  padding:10px;
+  border:none;
+  border-radius:8px;
+  background:#22c55e;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+/* LIST */
+.list{
+  max-height:220px;
+  overflow:auto;
+}
+
+.item{
+  background:#0f172a;
+  padding:8px;
+  margin:6px 0;
+  border-radius:8px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:13px;
+}
+
+.del{
+  color:#ff4d4d;
+  cursor:pointer;
+}
+
+/* BAR */
+.bar{
+  height:10px;
+  background:#334155;
+  border-radius:10px;
+  overflow:hidden;
+  margin-top:8px;
+}
+
+.fill{
+  height:10px;
+  background:#38bdf8;
+  width:0%;
+}
+
+/* BIG SCORE */
+.big{
+  font-size:34px;
+  text-align:center;
+  font-weight:bold;
+}
+
+.status{
+  text-align:center;
+  margin-top:10px;
+  font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">💰 MoneyMoodz Pro — Working Finance Tracker</div>
+
+<div class="container">
+
+<!-- INPUT -->
+<div class="card">
+  <h3>Add Expense</h3>
+
+  <input id="name" placeholder="Expense name">
+  <input id="amount" type="number" placeholder="Amount">
+
+  <select id="category">
+    <option>Food</option>
+    <option>Shopping</option>
+    <option>Travel</option>
+    <option>Fun</option>
+  </select>
+
+  <input id="budget" type="number" placeholder="Monthly Budget">
+
+  <button onclick="addExpense()">Add Expense</button>
+</div>
+
+<!-- DASHBOARD -->
+<div class="card">
+  <h3>📊 Dashboard</h3>
+
+  <div class="big" id="score">0%</div>
+
+  <div class="bar">
+    <div class="fill" id="fill"></div>
+  </div>
+
+  <div class="status" id="status">Waiting...</div>
+
+  <p>Total: ₹<span id="total">0</span></p>
+  <p>Budget: ₹<span id="budget">0</span></p>
+  <p>Remaining: ₹<span id="remain">0</span></p>
+</div>
+
+<!-- LIST -->
+<div class="card">
+  <h3>📁 Expenses</h3>
+  <div class="list" id="list"></div>
+</div>
+
+</div>
+
+<script>
+let expenses = JSON.parse(localStorage.getItem("mm_data")) || [];
+let budgetValue = 0;
+
+/* SAVE */
+function save(){
+  localStorage.setItem("mm_data", JSON.stringify(expenses));
+}
+
+/* ADD */
+function addExpense(){
+
+  let name = document.getElementById("name").value.trim();
+  let amount = Number(document.getElementById("amount").value);
+  let category = document.getElementById("category").value;
+  let budget = Number(document.getElementById("budget").value);
+
+  if(!name || !amount || !budget){
+    alert("Please fill all fields");
+    return;
+  }
+
+  budgetValue = budget;
+
+  expenses.push({
+    name,
+    amount,
+    category
+  });
+
+  save();
+  render();
+
+  document.getElementById("name").value="";
+  document.getElementById("amount").value="";
+}
+
+/* DELETE */
+function remove(index){
+  expenses.splice(index,1);
+  save();
+  render();
+}
+
+/* RENDER */
+function render(){
+
+  let list = document.getElementById("list");
+  list.innerHTML = "";
+
+  let total = 0;
+
+  expenses.forEach((e,i)=>{
+    total += e.amount;
+
+    list.innerHTML += `
+      <div class="item">
+        <div>
+          <b>${e.name}</b> - ₹${e.amount}<br>
+          <small>${e.category}</small>
+        </div>
+        <div class="del" onclick="remove(${i})">✖</div>
+      </div>
+    `;
+  });
+
+  let percent = budgetValue ? (total / budgetValue) * 100 : 0;
+
+  if(percent > 100) percent = 100;
+
+  document.getElementById("total").innerText = total;
+  document.getElementById("budget").innerText = budgetValue;
+  document.getElementById("remain").innerText = budgetValue - total;
+
+  document.getElementById("score").innerText = Math.round(percent) + "%";
+  document.getElementById("fill").style.width = percent + "%";
+
+  let status = "";
+
+  if(percent < 40) status = "😄 Great Saving Habit";
+  else if(percent < 70) status = "🙂 Balanced Spending";
+  else if(percent < 90) status = "⚠ Be Careful";
+  else status = "🚨 Overspending Alert";
+
+  document.getElementById("status").innerText = status;
+}
+
+/* INIT */
+render();
+</script>
+
+</body>
+</html>

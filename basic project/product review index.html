@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product Review System</title>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Arial, sans-serif;
+}
+
+body{
+  background:#0f0f1a;
+  color:white;
+}
+
+/* HEADER */
+header{
+  text-align:center;
+  padding:20px;
+  font-size:26px;
+  font-weight:bold;
+  background: linear-gradient(90deg,#ff4ecd,#6a5cff);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+
+/* GRID */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:15px;
+  padding:20px;
+}
+
+/* PRODUCT CARD */
+.card{
+  background:rgba(255,255,255,0.05);
+  backdrop-filter:blur(10px);
+  border-radius:15px;
+  overflow:hidden;
+  box-shadow:0 10px 25px rgba(0,0,0,0.4);
+  transition:0.3s;
+}
+
+.card:hover{
+  transform:translateY(-5px);
+}
+
+.card img{
+  width:100%;
+  height:180px;
+  object-fit:cover;
+}
+
+.card-content{
+  padding:10px;
+}
+
+.title{
+  font-size:18px;
+  font-weight:bold;
+}
+
+.price{
+  color:#00ffb3;
+  margin:5px 0;
+}
+
+button{
+  padding:8px 12px;
+  border:none;
+  border-radius:10px;
+  background:#6a5cff;
+  color:white;
+  cursor:pointer;
+  margin-top:5px;
+}
+
+/* REVIEW BOX */
+.review-box{
+  display:none;
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  background:#1c1c2e;
+  padding:20px;
+  border-radius:15px;
+  width:300px;
+  z-index:10;
+}
+
+.review-box input,
+.review-box textarea,
+.review-box select{
+  width:100%;
+  margin:5px 0;
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  background:#2a2a3d;
+  color:white;
+}
+
+/* OVERLAY */
+.overlay{
+  display:none;
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.6);
+}
+
+/* REVIEWS INSIDE CARD */
+.reviews{
+  margin-top:10px;
+  font-size:13px;
+  color:#ccc;
+  max-height:80px;
+  overflow:auto;
+}
+
+.review-item{
+  margin-bottom:5px;
+  padding:5px;
+  background:rgba(255,255,255,0.05);
+  border-radius:8px;
+}
+</style>
+</head>
+
+<body>
+
+<header>🔥 Product Review Hub</header>
+
+<div class="grid" id="grid"></div>
+
+<div class="overlay" id="overlay" onclick="closeBox()"></div>
+
+<div class="review-box" id="reviewBox">
+  <h3>Write Review</h3>
+  <div id="productName"></div>
+
+  <select id="rating">
+    <option value="5">⭐⭐⭐⭐⭐</option>
+    <option value="4">⭐⭐⭐⭐</option>
+    <option value="3">⭐⭐⭐</option>
+    <option value="2">⭐⭐</option>
+    <option value="1">⭐</option>
+  </select>
+
+  <textarea id="text" placeholder="Write your review..."></textarea>
+
+  <button onclick="submitReview()">Submit</button>
+</div>
+
+<script>
+let products = [
+  {
+    name:"iPhone 15 Pro",
+    price:"₹1,29,999",
+    img:"https://images.unsplash.com/photo-1695048133142-1c2f2c9f1a9b",
+    reviews:[]
+  },
+  {
+    name:"Sony Headphones",
+    price:"₹9,999",
+    img:"https://images.unsplash.com/photo-1518441902117-f0a5e8b0d9d0",
+    reviews:[]
+  },
+  {
+    name:"Nike Sneakers",
+    price:"₹5,499",
+    img:"https://images.unsplash.com/photo-1600180758890-6b94519a8ba9",
+    reviews:[]
+  }
+];
+
+let currentIndex = null;
+
+// render products
+function render(){
+  let grid = document.getElementById("grid");
+  grid.innerHTML="";
+
+  products.forEach((p,i)=>{
+    grid.innerHTML += `
+      <div class="card">
+        <img src="${p.img}">
+        <div class="card-content">
+          <div class="title">${p.name}</div>
+          <div class="price">${p.price}</div>
+
+          <button onclick="openReview(${i})">⭐ Add Review</button>
+
+          <div class="reviews">
+            ${p.reviews.map(r=>`
+              <div class="review-item">
+                ${"⭐".repeat(r.rating)} - ${r.text}
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      </div>
+    `;
+  });
+}
+
+// open review box
+function openReview(i){
+  currentIndex = i;
+  document.getElementById("reviewBox").style.display="block";
+  document.getElementById("overlay").style.display="block";
+  document.getElementById("productName").innerText = products[i].name;
+}
+
+// close
+function closeBox(){
+  document.getElementById("reviewBox").style.display="none";
+  document.getElementById("overlay").style.display="none";
+}
+
+// submit review
+function submitReview(){
+  let rating = document.getElementById("rating").value;
+  let text = document.getElementById("text").value;
+
+  if(text.trim()==="") return alert("Write review first");
+
+  products[currentIndex].reviews.push({
+    rating:parseInt(rating),
+    text:text
+  });
+
+  document.getElementById("text").value="";
+  closeBox();
+  render();
+}
+
+render();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vintage Resume Builder</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500&family=Poppins:wght@300;400&display=swap" rel="stylesheet">
+
+<style>
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: #f8f6f2;
+}
+
+.container {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+/* LEFT FORM */
+.form-section {
+  width: 40%;
+  padding: 20px;
+  background: #fffaf3;
+  border-right: 2px solid #e6ccb2;
+}
+
+.form-section h2 {
+  font-family: 'Playfair Display', serif;
+}
+
+input, textarea {
+  width: 100%;
+  padding: 10px;
+  margin: 6px 0;
+  border: 1px solid #e6ccb2;
+  border-radius: 6px;
+  background: #fff;
+}
+
+button {
+  padding: 8px 12px;
+  margin: 5px 2px;
+  background: #7f5539;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #5e3d2c;
+}
+
+.skill {
+  display: inline-block;
+  background: #ddb892;
+  padding: 5px 8px;
+  margin: 3px;
+  border-radius: 5px;
+}
+
+/* RIGHT PREVIEW */
+.preview-section {
+  width: 60%;
+  padding: 20px;
+  background: #fdf6ec;
+}
+
+.resume {
+  background: #fffaf3;
+  padding: 30px;
+  border: 1px solid #e6ccb2;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.resume h2 {
+  font-family: 'Playfair Display', serif;
+  color: #7f5539;
+}
+
+.resume h3 {
+  border-bottom: 1px solid #ddb892;
+  padding-bottom: 4px;
+  margin-top: 20px;
+  color: #7f5539;
+}
+
+.resume p {
+  margin: 5px 0;
+}
+
+@media(max-width:800px){
+  .form-section, .preview-section {
+    width: 100%;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- FORM -->
+<div class="form-section">
+  <h2>Resume Builder</h2>
+
+  <input id="name" placeholder="Full Name">
+  <input id="email" placeholder="Email">
+  <input id="phone" placeholder="Phone">
+  <input id="link" placeholder="LinkedIn/GitHub">
+
+  <textarea id="objective" placeholder="Career Objective"></textarea>
+
+  <h3>Education</h3>
+  <input id="education" placeholder="Degree, College, Year, CGPA">
+
+  <h3>Skills</h3>
+  <input id="skillInput" placeholder="Add skill">
+  <button onclick="addSkill()">Add</button>
+  <div id="skills"></div>
+
+  <h3>Projects</h3>
+  <textarea id="projects"></textarea>
+
+  <h3>Experience</h3>
+  <textarea id="experience"></textarea>
+
+  <h3>Certifications</h3>
+  <textarea id="certs"></textarea>
+
+  <h3>Achievements</h3>
+  <textarea id="achievements"></textarea>
+
+  <button onclick="fillSample()">Sample</button>
+  <button onclick="resetForm()">Reset</button>
+  <button onclick="download()">Download</button>
+
+  <p><b>Resume Score: <span id="score">0</span>%</b></p>
+</div>
+
+<!-- PREVIEW -->
+<div class="preview-section">
+  <div class="resume" id="resume">
+
+    <h2 id="rname"></h2>
+    <p id="rcontact"></p>
+
+    <h3>Objective</h3>
+    <p id="robjective"></p>
+
+    <h3>Education</h3>
+    <p id="reducation"></p>
+
+    <h3>Skills</h3>
+    <div id="rskills"></div>
+
+    <h3>Projects</h3>
+    <p id="rprojects"></p>
+
+    <h3>Experience</h3>
+    <p id="rexperience"></p>
+
+    <h3>Certifications</h3>
+    <p id="rcerts"></p>
+
+    <h3>Achievements</h3>
+    <p id="rachievements"></p>
+
+  </div>
+</div>
+
+</div>
+
+<script>
+let skills = [];
+
+function update(){
+  rname.innerText = name.value;
+  rcontact.innerText = email.value + " | " + phone.value + " | " + link.value;
+  robjective.innerText = objective.value;
+  reducation.innerText = education.value;
+  rprojects.innerText = projects.value;
+  rexperience.innerText = experience.value;
+  rcerts.innerText = certs.value;
+  rachievements.innerText = achievements.value;
+
+  rskills.innerHTML = "";
+  skills.forEach(s=>{
+    rskills.innerHTML += `<span class="skill">${s}</span>`;
+  });
+
+  calculateScore();
+}
+
+document.querySelectorAll("input, textarea").forEach(el=>{
+  el.addEventListener("input", update);
+});
+
+function addSkill(){
+  let val = skillInput.value;
+  if(val){
+    skills.push(val);
+    skillInput.value="";
+    renderSkills();
+    update();
+  }
+}
+
+function renderSkills(){
+  let box = document.getElementById("skills");
+  box.innerHTML="";
+  skills.forEach((s,i)=>{
+    box.innerHTML += `<span class="skill">${s} <button onclick="removeSkill(${i})">x</button></span>`;
+  });
+}
+
+function removeSkill(i){
+  skills.splice(i,1);
+  renderSkills();
+  update();
+}
+
+function calculateScore(){
+  let fields=[name.value,email.value,phone.value,objective.value,education.value,projects.value];
+  let filled=fields.filter(f=>f).length;
+  score.innerText=Math.round((filled/fields.length)*100);
+}
+
+function fillSample(){
+  name.value="Prerna Palkar";
+  email.value="prerna@email.com";
+  phone.value="1234567890";
+  link.value="linkedin.com/in/prerna";
+  objective.value="To work in a reputed company like TCS.";
+  education.value="B.Tech, XYZ College, CGPA 8.5";
+  projects.value="Quiz Website using HTML CSS JS";
+  experience.value="Intern at ABC";
+  certs.value="Web Dev Certificate";
+  achievements.value="Hackathon Finalist";
+
+  skills=["HTML","CSS","JavaScript","Problem Solving"];
+  renderSkills();
+  update();
+}
+
+function resetForm(){ location.reload(); }
+
+function download(){ window.print(); }
+</script>
+
+</body>
+</html>
